@@ -93,15 +93,25 @@ Powered by the [Foojay Disco API](https://foojay.io), `jm` supports 30+ JDK dist
 
 Eclipse Temurin, Amazon Corretto, Azul Zulu, Oracle JDK, GraalVM, BellSoft Liberica, SAP Machine, IBM Semeru, Microsoft OpenJDK, and more.
 
-## Building from Source
+## Installation
+
+**Linux / macOS**
 
 ```bash
-git clone https://github.com/jm-sh/jm.git
-cd jm
-cargo build --release
+curl -fsSL https://raw.githubusercontent.com/jm-sh/jm/main/install.sh | sh
 ```
 
-The binary will be at `target/release/jm`.
+**Windows (PowerShell)**
+
+```powershell
+irm https://raw.githubusercontent.com/jm-sh/jm/main/install.ps1 | iex
+```
+
+**From Source**
+
+```bash
+cargo install --git https://github.com/jm-sh/jm.git
+```
 
 ## License
 
