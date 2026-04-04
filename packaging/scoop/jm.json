@@ -1,0 +1,22 @@
+{
+    "version": "VERSION_PLACEHOLDER",
+    "description": "A fast, cross-platform JDK version manager",
+    "homepage": "https://github.com/lfming0419/jm",
+    "license": "MIT|Apache-2.0",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/lfming0419/jm/releases/download/vVERSION_PLACEHOLDER/jm-windows-x86_64.zip",
+            "hash": "SHA256_WINDOWS_PLACEHOLDER"
+        }
+    },
+    "bin": "jm.exe",
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/lfming0419/jm/releases/download/v$version/jm-windows-x86_64.zip"
+            }
+        }
+    },
+    "notes": "To enable shell integration, add to your PowerShell profile ($PROFILE):\n\n    jm shell init powershell | Invoke-Expression"
+}

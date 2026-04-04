@@ -149,3 +149,27 @@ jobs:
             artifacts/*.tar.gz
             artifacts/*.zip
             artifacts/sha256sums.txt
+
+      - name: Update Homebrew formula
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          SHA_MACOS=$(grep 'jm-macos-universal.tar.gz' artifacts/sha256sums.txt | awk '{print $1}')
+          SHA_LINUX_X86=$(grep 'jm-linux-x86_64.tar.gz' artifacts/sha256sums.txt | awk '{print $1}')
+          SHA_LINUX_ARM=$(grep 'jm-linux-aarch64.tar.gz' artifacts/sha256sums.txt | awk '{print $1}')
+          sed -e "s/VERSION_PLACEHOLDER/$VERSION/g" \
+              -e "s/SHA256_MACOS_PLACEHOLDER/$SHA_MACOS/g" \
+              -e "s/SHA256_LINUX_X86_64_PLACEHOLDER/$SHA_LINUX_X86/g" \
+              -e "s/SHA256_LINUX_AARCH64_PLACEHOLDER/$SHA_LINUX_ARM/g" \
+              packaging/homebrew/jm.rb > artifacts/jm.rb
+          echo "Generated Homebrew formula for v$VERSION"
+          cat artifacts/jm.rb
+
+      - name: Update Scoop manifest
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          SHA_WIN=$(grep 'jm-windows-x86_64.zip' artifacts/sha256sums.txt | awk '{print $1}')
+          sed -e "s/VERSION_PLACEHOLDER/$VERSION/g" \
+              -e "s/SHA256_WINDOWS_PLACEHOLDER/$SHA_WIN/g" \
+              packaging/scoop/jm.json > artifacts/jm.json
+          echo "Generated Scoop manifest for v$VERSION"
+          cat artifacts/jm.json
