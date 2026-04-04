@@ -1,0 +1,10 @@
+[package]
+name = "jm-shell"
+version = "0.1.0"
+edition = "2021"
+description = "Shell integration for jm JDK version manager"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+jm-core = { path = "../jm-core" }
+thiserror = { workspace = true }

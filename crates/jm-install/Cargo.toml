@@ -1,0 +1,23 @@
+[package]
+name = "jm-install"
+version = "0.1.0"
+edition = "2021"
+description = "JDK download, verification, and extraction for jm"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+jm-core = { path = "../jm-core" }
+jm-api = { path = "../jm-api" }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+sha2 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tar = "0.4"
+flate2 = "1"
+zip = "2"
+indicatif = "0.17"
+console = "0.15"
+tempfile = "3"
+futures-util = "0.3"

@@ -1,0 +1,22 @@
+[package]
+name = "jm-api"
+version = "0.1.0"
+edition = "2021"
+description = "API clients for jm JDK version manager"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+jm-core = { path = "../jm-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+reqwest = { workspace = true }
+tokio = { workspace = true }
+chrono = { workspace = true }
+url = { workspace = true }
+async-trait = "0.1"
+
+[dev-dependencies]
+wiremock = "0.6"
+tempfile = "3"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "test-util"] }

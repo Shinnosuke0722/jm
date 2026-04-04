@@ -1,0 +1,29 @@
+# Build
+/target
+
+# Dependencies
+Cargo.lock
+
+# IDE - VSCode
+.vscode/
+*.code-workspace
+
+# IDE - JetBrains (IntelliJ, CLion, RustRover)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor swap/backup
+*.swp
+*.swo
+*~
+*.bak
+
+# Logs
+*.log

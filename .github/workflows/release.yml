@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: jm-linux-x86_64
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            artifact: jm-linux-aarch64
+            use_cross: true
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            artifact: jm-macos-x86_64
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            artifact: jm-macos-aarch64
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            artifact: jm-windows-x86_64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Install cross
+        if: matrix.use_cross
+        run: cargo install cross --git https://github.com/cross-rs/cross
+
+      - name: Install musl tools
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Build (cross)
+        if: matrix.use_cross
+        run: cross build --release --target ${{ matrix.target }}
+
+      - name: Build (cargo)
+        if: "!matrix.use_cross"
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Package (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czf ../../../${{ matrix.artifact }}.tar.gz jm
+          cd ../../..
+
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ../../../${{ matrix.artifact }}.zip jm.exe
+          cd ../../..
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: |
+            ${{ matrix.artifact }}.tar.gz
+            ${{ matrix.artifact }}.zip
+
+  universal-macos:
+    name: Universal macOS binary
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: jm-macos-x86_64
+      - uses: actions/download-artifact@v4
+        with:
+          name: jm-macos-aarch64
+
+      - name: Create universal binary
+        run: |
+          mkdir -p x86_64 aarch64
+          tar xzf jm-macos-x86_64.tar.gz -C x86_64
+          tar xzf jm-macos-aarch64.tar.gz -C aarch64
+          lipo -create x86_64/jm aarch64/jm -output jm
+          tar czf jm-macos-universal.tar.gz jm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: jm-macos-universal
+          path: jm-macos-universal.tar.gz
+
+  release:
+    name: Create GitHub Release
+    needs: [build, universal-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum *.tar.gz *.zip > sha256sums.txt
+          cat sha256sums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/*.tar.gz
+            artifacts/*.zip
+            artifacts/sha256sums.txt
