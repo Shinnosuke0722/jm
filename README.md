@@ -4,8 +4,20 @@ A fast, cross-platform CLI tool for installing and managing JDK versions.
 
 - **Multi-distribution**: Install from Temurin, Corretto, Zulu, GraalVM, and 30+ other distributions
 - **Cross-platform**: Linux, macOS, and Windows
-- **Fast**: <10ms shell startup impact
+- **Fast**: <10ms shell startup impact (benchmarked at ~56ns)
 - **Auto-switching**: Automatically switch JDK when entering a project directory
+
+## Why jm?
+
+| Feature | jm | SDKMAN | jabba | Coursier |
+|---------|:--:|:------:|:-----:|:--------:|
+| Multi-distribution (30+) | Yes | Yes | Limited | Limited |
+| Cross-platform | Yes | Unix only | Yes | Yes |
+| Shell auto-switching | Yes | Yes | Yes | No |
+| No runtime dependency | Yes (static binary) | Requires bash+curl+zip | Requires Go | Requires JVM |
+| Checksum verification | Yes (SHA256) | Partial | No | Yes |
+| SDKMAN compatibility | Yes (.sdkmanrc) | - | No | No |
+| Self-update | Yes | Yes | No | Yes |
 
 ## Quick Start
 
@@ -30,6 +42,26 @@ jm default 21
 
 # Show current JDK
 jm current
+```
+
+## Installation
+
+**Linux / macOS**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh
+```
+
+**Windows (PowerShell)**
+
+```powershell
+irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1 | iex
+```
+
+**From Source**
+
+```bash
+cargo install --git https://github.com/lfming0419/jm.git
 ```
 
 ## Shell Integration
@@ -85,7 +117,9 @@ Or just specify a major version:
 | `jm which <binary>` | Show path to a JDK binary |
 | `jm env` | Print JAVA_HOME/PATH settings |
 | `jm shell init <shell>` | Print shell integration script |
-| `jm config path` | Show config file location |
+| `jm config list\|get\|set` | View or modify configuration |
+| `jm doctor` | Diagnose common setup issues |
+| `jm upgrade` | Upgrade jm to the latest version |
 
 ## Supported Distributions
 
@@ -93,25 +127,66 @@ Powered by the [Foojay Disco API](https://foojay.io), `jm` supports 30+ JDK dist
 
 Eclipse Temurin, Amazon Corretto, Azul Zulu, Oracle JDK, GraalVM, BellSoft Liberica, SAP Machine, IBM Semeru, Microsoft OpenJDK, and more.
 
-## Installation
+## Platform Support
 
-**Linux / macOS**
+| Platform | Architecture | Status |
+|----------|-------------|--------|
+| Linux | x86_64, aarch64 | Fully supported (musl static binary) |
+| macOS | x86_64, aarch64 | Fully supported (universal binary) |
+| Windows | x86_64 | Fully supported |
+
+## Configuration
+
+Configuration is stored in `config.toml` (run `jm config path` to find it).
+
+```toml
+[global]
+preferred_distribution = "temurin"
+auto_install = false
+
+[install]
+verify_checksum = true
+keep_archives = false
+
+[api]
+fallback_enabled = true
+timeout = 30
+# proxy = "http://proxy:8080"
+```
+
+## Troubleshooting
+
+**`jm` command not found after installation**
+
+Ensure `~/.jm/bin` is in your PATH. The install script prints the exact command for your shell.
+
+**Auto-switching not working**
+
+Make sure shell integration is set up (see [Shell Integration](#shell-integration)). Run `jm doctor` to diagnose issues.
+
+**Download fails behind a proxy**
+
+Set the proxy in configuration:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh
+jm config set api.proxy http://your-proxy:8080
 ```
 
-**Windows (PowerShell)**
+**Checksum verification fails**
 
-```powershell
-irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1 | iex
-```
+Try re-downloading with `jm install --no-verify <version>`. If the issue persists, the upstream archive may have been updated — please report it.
 
-**From Source**
+**`jm doctor` reports issues**
 
-```bash
-cargo install --git https://github.com/lfming0419/jm.git
-```
+Run `jm doctor` for a full diagnostic. It checks: platform detection, storage directories, config, registry integrity, symlinks, installed JDK health, API connectivity, and shell integration.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, project structure, and guidelines.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting and security practices.
 
 ## License
 
