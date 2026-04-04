@@ -83,7 +83,7 @@ async fn list_remote(distribution: Option<&str>, major: Option<u32>, lts: bool) 
     let platform = Platform::current()?;
 
     let cache = ApiCache::new(dirs.api_cache_dir());
-    let client = DiscoClient::new(config.api.disco_api_url, cache)?;
+    let client = DiscoClient::with_proxy(config.api.disco_api_url, cache, config.api.proxy.as_deref())?;
 
     if let Some(major) = major {
         // List packages for a specific major version

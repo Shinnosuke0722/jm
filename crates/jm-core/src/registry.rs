@@ -3,6 +3,7 @@ use crate::error::Result;
 use crate::java_version::JavaVersion;
 use crate::storage::StorageDirs;
 use chrono::{DateTime, Utc};
+use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -61,8 +62,33 @@ impl Registry {
             std::fs::create_dir_all(parent)?;
         }
         let content = serde_json::to_string_pretty(self)?;
-        std::fs::write(path, content)?;
+        // Atomic write: write to temp file, then rename
+        let tmp_path = path.with_extension("json.tmp");
+        std::fs::write(&tmp_path, &content)?;
+        std::fs::rename(&tmp_path, path)?;
         Ok(())
+    }
+
+    /// Acquire an exclusive file lock, load the registry, apply the mutation,
+    /// and save atomically. Prevents concurrent processes from corrupting data.
+    pub fn locked_update<F, T>(dirs: &StorageDirs, f: F) -> Result<T>
+    where
+        F: FnOnce(&mut Self) -> Result<T>,
+    {
+        let path = dirs.registry_path();
+        let lock_path = path.with_extension("lock");
+        if let Some(parent) = lock_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let lock_file = std::fs::File::create(&lock_path)?;
+        lock_file.lock_exclusive()?;
+
+        let mut registry = Self::load_from(&path)?;
+        let result = f(&mut registry)?;
+        registry.save_to(&path)?;
+
+        // Lock released on drop
+        Ok(result)
     }
 
     pub fn empty() -> Self {

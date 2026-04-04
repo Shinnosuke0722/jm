@@ -4,10 +4,45 @@ use jm_core::error::{JmError, Result};
 use std::path::{Path, PathBuf};
 use tokio::io::AsyncWriteExt;
 
+/// Guard that cleans up the .part file if dropped before `defuse()` is called.
+/// Ensures partial downloads are removed on error, panic, or Ctrl+C.
+struct PartFileGuard {
+    path: PathBuf,
+    armed: bool,
+}
+
+impl PartFileGuard {
+    fn new(path: PathBuf) -> Self {
+        Self { path, armed: true }
+    }
+
+    /// Disarm the guard — the .part file has been successfully renamed.
+    fn defuse(&mut self) {
+        self.armed = false;
+    }
+}
+
+impl Drop for PartFileGuard {
+    fn drop(&mut self) {
+        if self.armed {
+            let _ = std::fs::remove_file(&self.path);
+        }
+    }
+}
+
 /// Download a JDK archive with progress reporting.
 ///
 /// Returns the path to the downloaded file.
 pub async fn download_jdk(info: &DownloadInfo, downloads_dir: &Path) -> Result<PathBuf> {
+    download_jdk_with_proxy(info, downloads_dir, None).await
+}
+
+/// Download a JDK archive with progress reporting and optional HTTP proxy.
+pub async fn download_jdk_with_proxy(
+    info: &DownloadInfo,
+    downloads_dir: &Path,
+    proxy: Option<&str>,
+) -> Result<PathBuf> {
     std::fs::create_dir_all(downloads_dir)?;
     let dest = downloads_dir.join(&info.filename);
 
@@ -16,8 +51,23 @@ pub async fn download_jdk(info: &DownloadInfo, downloads_dir: &Path) -> Result<P
         return Ok(dest);
     }
 
-    let client = reqwest::Client::builder()
-        .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
+    // Clean up stale .part files from previous interrupted downloads
+    let tmp_path = dest.with_extension("part");
+    if tmp_path.exists() {
+        let _ = std::fs::remove_file(&tmp_path);
+    }
+
+    let mut builder = reqwest::Client::builder()
+        .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")));
+
+    if let Some(proxy_url) = proxy {
+        builder = builder.proxy(
+            reqwest::Proxy::all(proxy_url)
+                .map_err(|e| JmError::DownloadFailed(format!("invalid proxy URL: {}", e)))?,
+        );
+    }
+
+    let client = builder
         .build()
         .map_err(|e| JmError::DownloadFailed(e.to_string()))?;
 
@@ -45,7 +95,7 @@ pub async fn download_jdk(info: &DownloadInfo, downloads_dir: &Path) -> Result<P
     );
     pb.set_message(info.filename.clone());
 
-    let tmp_path = dest.with_extension("part");
+    let mut guard = PartFileGuard::new(tmp_path.clone());
     let mut file = tokio::fs::File::create(&tmp_path)
         .await
         .map_err(|e| JmError::DownloadFailed(e.to_string()))?;
@@ -65,8 +115,9 @@ pub async fn download_jdk(info: &DownloadInfo, downloads_dir: &Path) -> Result<P
         .map_err(|e| JmError::DownloadFailed(e.to_string()))?;
     drop(file);
 
-    // Atomic rename
+    // Atomic rename — only after full download succeeds
     std::fs::rename(&tmp_path, &dest)?;
+    guard.defuse();
     pb.finish_with_message("Download complete");
 
     Ok(dest)

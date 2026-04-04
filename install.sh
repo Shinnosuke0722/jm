@@ -1,16 +1,16 @@
 #!/bin/sh
-# jm installer — https://github.com/jm-sh/jm
+# jm installer — https://github.com/lfming0419/jm
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/jm-sh/jm/main/install.sh | sh
-#   curl -fsSL https://raw.githubusercontent.com/jm-sh/jm/main/install.sh | sh -s -- --version v0.2.0
-#   curl -fsSL https://raw.githubusercontent.com/jm-sh/jm/main/install.sh | sh -s -- --install-dir /usr/local/bin
+#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --version v0.2.0
+#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --install-dir /usr/local/bin
 
 set -eu
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 
-REPO="jm-sh/jm"
+REPO="lfming0419/jm"
 BINARY_NAME="jm"
 DEFAULT_INSTALL_DIR="${HOME}/.jm/bin"
 

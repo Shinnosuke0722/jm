@@ -22,7 +22,7 @@ pub async fn run(
     let platform = Platform::current()?;
 
     let cache = ApiCache::new(dirs.api_cache_dir());
-    let client = DiscoClient::new(config.api.disco_api_url, cache)?;
+    let client = DiscoClient::with_proxy(config.api.disco_api_url, cache, config.api.proxy.as_deref())?;
 
     // Determine if query is a version number or distribution name
     let (major_version, dist_filter) = if let Ok(v) = query.parse::<u32>() {

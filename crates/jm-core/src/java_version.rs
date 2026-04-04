@@ -187,8 +187,10 @@ impl VersionSpec {
         // "21.0.2+13" -> no distribution
         // "graalvm-ce-22" -> distribution="graalvm-ce", version="22"
         if let Some((dist_part, ver_part)) = split_distribution_version(s) {
+            let dist = Distribution::parse(dist_part);
+            dist.validate()?;
             Ok(Self {
-                distribution: Some(Distribution::parse(dist_part)),
+                distribution: Some(dist),
                 version: JavaVersion::parse(ver_part)?,
             })
         } else {

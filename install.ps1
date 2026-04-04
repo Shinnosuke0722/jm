@@ -1,9 +1,9 @@
-# jm installer for Windows — https://github.com/jm-sh/jm
+# jm installer for Windows — https://github.com/lfming0419/jm
 #
 # Usage:
-#   irm https://raw.githubusercontent.com/jm-sh/jm/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1 | iex
 #   # Or with options:
-#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/jm-sh/jm/main/install.ps1))) -Version v0.2.0
+#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1))) -Version v0.2.0
 
 param(
     [string]$Version = "",
@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 
-$Repo = "jm-sh/jm"
+$Repo = "lfming0419/jm"
 $BinaryName = "jm.exe"
 $DefaultInstallDir = "$env:USERPROFILE\.jm\bin"
 

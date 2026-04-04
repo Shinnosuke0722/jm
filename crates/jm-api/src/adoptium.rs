@@ -61,9 +61,23 @@ struct AdoptiumVersion {
 
 impl AdoptiumClient {
     pub fn new() -> Result<Self, JmError> {
-        let client = Client::builder()
+        Self::with_proxy(None)
+    }
+
+    pub fn with_proxy(proxy: Option<&str>) -> Result<Self, JmError> {
+        let mut builder = Client::builder()
             .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
-            .timeout(std::time::Duration::from_secs(30))
+            .timeout(std::time::Duration::from_secs(30));
+
+        if let Some(proxy_url) = proxy {
+            builder = builder
+                .proxy(
+                    reqwest::Proxy::all(proxy_url)
+                        .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {}", e)))?,
+                );
+        }
+
+        let client = builder
             .build()
             .map_err(|e| JmError::ApiError(e.to_string()))?;
         Ok(Self { client })

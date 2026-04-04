@@ -31,7 +31,9 @@ pub async fn run(
     let mut spec = VersionSpec::parse(version)?;
     if spec.distribution.is_none() {
         if let Some(dist) = distribution_override {
-            spec.distribution = Some(Distribution::parse(dist));
+            let d = Distribution::parse(dist);
+            d.validate()?;
+            spec.distribution = Some(d);
         } else {
             spec.distribution = Some(Distribution::parse(&config.global.preferred_distribution));
         }
@@ -58,7 +60,8 @@ pub async fn run(
 
     // Query Disco API (primary), fallback to Adoptium on failure
     let cache = ApiCache::new(dirs.api_cache_dir());
-    let disco = DiscoClient::new(config.api.disco_api_url.clone(), cache)?;
+    let proxy = config.api.proxy.as_deref();
+    let disco = DiscoClient::with_proxy(config.api.disco_api_url.clone(), cache, proxy)?;
 
     let (provider_name, package, provider): (&str, JdkPackage, Box<dyn JdkProvider>) =
         match disco.query_packages(&query).await {
@@ -68,7 +71,7 @@ pub async fn run(
             }
             Ok(_) | Err(_) if config.api.fallback_enabled && dist == &Distribution::Temurin => {
                 output::print_warning("Foojay Disco unavailable, falling back to Adoptium API...");
-                let adoptium = AdoptiumClient::new()?;
+                let adoptium = AdoptiumClient::with_proxy(proxy)?;
                 let packages = adoptium.query_packages(&query).await?;
                 let pkg = packages
                     .into_iter()
@@ -91,12 +94,14 @@ pub async fn run(
         provider_name,
     ));
 
-    // Check if already installed
-    let mut registry = Registry::load(&dirs)?;
+    // Check if already installed (quick check before expensive download)
     let install_id = format!("{}-{}", dist.api_parameter(), &package.java_version);
-    if registry.find_by_id(&install_id).is_some() {
-        output::print_warning(&format!("{} is already installed", install_id));
-        return Ok(());
+    {
+        let registry = Registry::load(&dirs)?;
+        if registry.find_by_id(&install_id).is_some() {
+            output::print_warning(&format!("{} is already installed", install_id));
+            return Ok(());
+        }
     }
 
     // Resolve download URL
@@ -104,7 +109,8 @@ pub async fn run(
 
     // Download
     output::print_info(&format!("Downloading {}...", &download_info.filename));
-    let archive_path = download::download_jdk(&download_info, &dirs.downloads_dir()).await?;
+    let archive_path =
+        download::download_jdk_with_proxy(&download_info, &dirs.downloads_dir(), proxy).await?;
 
     // Verify checksum
     if !no_verify {
@@ -129,20 +135,22 @@ pub async fn run(
     }
     move_dir(&jdk_home, &final_dir)?;
 
-    // Register installation
-    let installation = Installation {
-        id: install_id.clone(),
-        distribution: dist.clone(),
-        java_version: JavaVersion::parse(&package.java_version)
-            .unwrap_or_else(|_| JavaVersion::new(package.major_version)),
-        full_version: package.java_version.clone(),
-        major_version: package.major_version,
-        path: final_dir.clone(),
-        installed_at: chrono::Utc::now(),
-        is_lts: package.term_of_support.to_uppercase() == "LTS",
-    };
-    registry.add(installation);
-    registry.save(&dirs)?;
+    // Register installation under exclusive lock (prevents concurrent corruption)
+    let installation_count = Registry::locked_update(&dirs, |registry| {
+        let installation = Installation {
+            id: install_id.clone(),
+            distribution: dist.clone(),
+            java_version: JavaVersion::parse(&package.java_version)
+                .unwrap_or_else(|_| JavaVersion::new(package.major_version)),
+            full_version: package.java_version.clone(),
+            major_version: package.major_version,
+            path: final_dir.clone(),
+            installed_at: chrono::Utc::now(),
+            is_lts: package.term_of_support.to_uppercase() == "LTS",
+        };
+        registry.add(installation);
+        Ok(registry.installations.len())
+    })?;
 
     // Clean up downloaded archive if configured
     if !config.install.keep_archives {
@@ -150,7 +158,7 @@ pub async fn run(
     }
 
     // Set as default if requested or if it's the first installation
-    if set_default || registry.installations.len() == 1 {
+    if set_default || installation_count == 1 {
         link::set_current_link(&dirs.current_link(), &final_dir)?;
         output::print_success(&format!("Set {} as global default", &install_id));
     }

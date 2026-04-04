@@ -98,19 +98,19 @@ Eclipse Temurin, Amazon Corretto, Azul Zulu, Oracle JDK, GraalVM, BellSoft Liber
 **Linux / macOS**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/jm-sh/jm/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-irm https://raw.githubusercontent.com/jm-sh/jm/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1 | iex
 ```
 
 **From Source**
 
 ```bash
-cargo install --git https://github.com/jm-sh/jm.git
+cargo install --git https://github.com/lfming0419/jm.git
 ```
 
 ## License

@@ -1,5 +1,6 @@
 use anyhow::Result;
 use console::style;
+use dialoguer::Confirm;
 use jm_core::java_version::VersionSpec;
 use jm_core::registry::Registry;
 use jm_core::storage::StorageDirs;
@@ -9,7 +10,7 @@ use crate::output;
 
 pub fn run(version: &str, force: bool) -> Result<()> {
     let dirs = StorageDirs::resolve()?;
-    let mut registry = Registry::load(&dirs)?;
+    let registry = Registry::load(&dirs)?;
 
     // Try exact id match first
     let install_id = if registry.find_by_id(version).is_some() {
@@ -45,8 +46,14 @@ pub fn run(version: &str, force: bool) -> Result<()> {
             style(&install_id).yellow(),
             installation.path.display()
         ));
-        // In a real implementation, prompt for confirmation here
-        // For now, proceed directly
+        let confirmed = Confirm::new()
+            .with_prompt("Continue?")
+            .default(false)
+            .interact()?;
+        if !confirmed {
+            output::print_info("Aborted");
+            return Ok(());
+        }
     }
 
     let install_path = installation.path.clone();
@@ -56,9 +63,11 @@ pub fn run(version: &str, force: bool) -> Result<()> {
         std::fs::remove_dir_all(&install_path)?;
     }
 
-    // Remove from registry
-    registry.remove(&install_id);
-    registry.save(&dirs)?;
+    // Remove from registry under exclusive lock
+    Registry::locked_update(&dirs, |registry| {
+        registry.remove(&install_id);
+        Ok(())
+    })?;
 
     // If this was the current default, remove the link
     let current = link::read_current_link(&dirs.current_link())?;

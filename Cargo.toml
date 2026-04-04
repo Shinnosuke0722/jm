@@ -8,7 +8,7 @@ version = "0.1.0"
 edition = "2021"
 description = "A fast, cross-platform JDK version manager"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/jm-sh/jm"
+repository = "https://github.com/lfming0419/jm"
 readme = "README.md"
 keywords = ["java", "jdk", "version-manager", "cli"]
 categories = ["command-line-utilities", "development-tools"]
@@ -29,6 +29,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
 clap_complete = "4"
+dialoguer = "0.11"
 tempfile = "3"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip"] }
 tar = "0.4"
