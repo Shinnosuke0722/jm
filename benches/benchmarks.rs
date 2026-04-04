@@ -101,9 +101,7 @@ fn bench_registry_operations(c: &mut Criterion) {
         b.iter(|| reg.find_matching(None, black_box(&spec)))
     });
 
-    group.bench_function("sorted", |b| {
-        b.iter(|| reg.sorted())
-    });
+    group.bench_function("sorted", |b| b.iter(|| reg.sorted()));
 
     // Serialization benchmark
     group.bench_function("serialize_json", |b| {
@@ -130,9 +128,7 @@ fn bench_config_operations(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("config");
 
-    group.bench_function("default", |b| {
-        b.iter(|| Config::default())
-    });
+    group.bench_function("default", |b| b.iter(Config::default));
 
     group.bench_function("serialize_toml", |b| {
         let config = Config::default();

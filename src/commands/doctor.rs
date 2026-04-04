@@ -242,8 +242,7 @@ fn check_installed_jdks(dirs: &StorageDirs) -> Check {
 
 async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
     let config = Config::load(dirs).unwrap_or_default();
-    let mut builder = reqwest::Client::builder()
-        .timeout(std::time::Duration::from_secs(5));
+    let mut builder = reqwest::Client::builder().timeout(std::time::Duration::from_secs(5));
     if let Some(ref proxy_url) = config.api.proxy {
         if let Ok(proxy) = reqwest::Proxy::all(proxy_url) {
             builder = builder.proxy(proxy);

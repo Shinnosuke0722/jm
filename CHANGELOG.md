@@ -7,19 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### CI/CD
-- Add Swatinem/rust-cache to all CI and release jobs
-- Add security audit job (rustsec/audit-check)
-- Add MSRV verification (Rust 1.75)
-- Add code coverage with cargo-llvm-cov and Codecov
-- Add git-cliff for automated changelog generation
+## [1.0.0] - 2026-04-05
 
-### Testing
-- Add 26 CLI integration tests (assert_cmd)
-- Add 7 API mock tests (wiremock)
-- Add 9 shell crate tests
-- Add 6 config load/save tests
-- Add criterion benchmarks (18 bench functions)
+### Added
+- Uninstall confirmation prompt (dialoguer), `--force` to skip
+- HTTP proxy support threaded through all API clients and downloads
+- Performance benchmarks confirming sub-microsecond operations
+- Homebrew formula and Scoop manifest for package manager distribution
+- CHANGELOG.md, CONTRIBUTING.md, SECURITY.md
+- Feature comparison table and troubleshooting FAQ in README
 
 ### Security
 - Registry: atomic writes (tmp+rename) and exclusive file locking (fs2)
@@ -27,13 +23,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Download: PartFileGuard cleans up .part files on interruption
 - Distribution: validate user-supplied names against `[a-zA-Z0-9_-]`
 
-### Added
-- Uninstall confirmation prompt (dialoguer), `--force` to skip
-- HTTP proxy support threaded through all API clients and downloads
-- Performance benchmarks confirming sub-microsecond operations
+### Testing
+- 26 CLI integration tests (assert_cmd)
+- 7 API mock tests (wiremock)
+- 9 shell crate tests
+- 6 config load/save tests
+- Criterion benchmarks (18 bench functions)
+- Total: 89 tests, 0 clippy warnings
+
+### CI/CD
+- Swatinem/rust-cache on all CI and release jobs
+- Security audit job (rustsec/audit-check)
+- MSRV verification (Rust 1.82)
+- Code coverage with cargo-llvm-cov and Codecov
+- git-cliff for automated changelog generation
 
 ### Fixed
 - Repository URLs corrected from `jm-sh/jm` to `lfming0419/jm`
+- MSRV corrected from 1.75 to 1.82 (required by `is_none_or`)
+- Code formatting normalized via `cargo fmt`
 
 ## [0.1.0] - 2026-04-05
 
@@ -53,5 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Multi-platform release pipeline with universal macOS binary
 - Dual license: MIT OR Apache-2.0
 
-[Unreleased]: https://github.com/lfming0419/jm/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/lfming0419/jm/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/lfming0419/jm/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/lfming0419/jm/releases/tag/v0.1.0

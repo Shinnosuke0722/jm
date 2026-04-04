@@ -26,11 +26,10 @@ impl DiscoClient {
             .timeout(std::time::Duration::from_secs(30));
 
         if let Some(proxy_url) = proxy {
-            builder = builder
-                .proxy(
-                    reqwest::Proxy::all(proxy_url)
-                        .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {}", e)))?,
-                );
+            builder = builder.proxy(
+                reqwest::Proxy::all(proxy_url)
+                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {}", e)))?,
+            );
         }
 
         let client = builder

@@ -185,11 +185,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("config.toml");
         // Write only one section
-        std::fs::write(
-            &path,
-            "[global]\npreferred_distribution = \"zulu\"\n",
-        )
-        .unwrap();
+        std::fs::write(&path, "[global]\npreferred_distribution = \"zulu\"\n").unwrap();
 
         let config = Config::load_from(&path).unwrap();
         assert_eq!(config.global.preferred_distribution, "zulu");

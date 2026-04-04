@@ -3,7 +3,7 @@
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh
-#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --version v0.2.0
+#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --version v1.0.0
 #   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --install-dir /usr/local/bin
 
 set -eu
@@ -27,7 +27,7 @@ while [ $# -gt 0 ]; do
             echo "Usage: install.sh [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --version VERSION      Install a specific version (e.g. v0.1.0)"
+            echo "  --version VERSION      Install a specific version (e.g. v1.0.0)"
             echo "  --install-dir DIR      Install to a custom directory"
             echo "  --help                 Show this help"
             exit 0

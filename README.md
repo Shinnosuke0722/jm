@@ -4,7 +4,7 @@ A fast, cross-platform CLI tool for installing and managing JDK versions.
 
 - **Multi-distribution**: Install from Temurin, Corretto, Zulu, GraalVM, and 30+ other distributions
 - **Cross-platform**: Linux, macOS, and Windows
-- **Fast**: <10ms shell startup impact (benchmarked at ~56ns)
+- **Fast**: Near-zero shell overhead (~56ns per hook invocation, benchmarked)
 - **Auto-switching**: Automatically switch JDK when entering a project directory
 
 ## Why jm?

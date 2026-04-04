@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 use crate::output;
 
-const GITHUB_REPO: &str = "jm-sh/jm";
+const GITHUB_REPO: &str = "lfming0419/jm";
 
 #[derive(Debug, Deserialize)]
 struct GitHubRelease {

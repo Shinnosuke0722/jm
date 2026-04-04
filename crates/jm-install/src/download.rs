@@ -57,8 +57,8 @@ pub async fn download_jdk_with_proxy(
         let _ = std::fs::remove_file(&tmp_path);
     }
 
-    let mut builder = reqwest::Client::builder()
-        .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")));
+    let mut builder =
+        reqwest::Client::builder().user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")));
 
     if let Some(proxy_url) = proxy {
         builder = builder.proxy(

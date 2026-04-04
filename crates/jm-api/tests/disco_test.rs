@@ -120,7 +120,11 @@ async fn query_packages_http_error() {
     let result = client.query_packages(&query).await;
     assert!(result.is_err());
     let err = result.unwrap_err().to_string();
-    assert!(err.contains("500"), "Error should mention status code: {}", err);
+    assert!(
+        err.contains("500"),
+        "Error should mention status code: {}",
+        err
+    );
 }
 
 #[tokio::test]

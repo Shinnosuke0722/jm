@@ -3,7 +3,7 @@
 # Usage:
 #   irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1 | iex
 #   # Or with options:
-#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1))) -Version v0.2.0
+#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1))) -Version v1.0.0
 
 param(
     [string]$Version = "",

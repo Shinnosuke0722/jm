@@ -268,10 +268,7 @@ fn use_nonexistent() {
 #[test]
 fn alias_ls_works() {
     let tmp = tempfile::tempdir().unwrap();
-    jm().arg("ls")
-        .env("JM_HOME", tmp.path())
-        .assert()
-        .success();
+    jm().arg("ls").env("JM_HOME", tmp.path()).assert().success();
 }
 
 #[test]
