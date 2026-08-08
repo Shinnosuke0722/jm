@@ -113,7 +113,6 @@ mod tests {
             .join("Home");
         std::fs::create_dir_all(bundle_dir.join("bin")).unwrap();
 
-        #[cfg(unix)]
         std::fs::write(bundle_dir.join("bin/java"), "").unwrap();
 
         let home = find_jdk_home(dir.path(), Os::MacOs).unwrap();

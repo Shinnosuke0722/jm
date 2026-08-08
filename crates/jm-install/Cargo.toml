@@ -6,7 +6,7 @@ rust-version = "1.82"
 description = "JDK download, verification, and extraction for jm"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/lfming0419/jm"
+repository = "https://github.com/Shinnosuke0722/jm"
 
 [dependencies]
 jm-core = { path = "../jm-core" }
@@ -24,3 +24,6 @@ indicatif = "0.17"
 console = "0.15"
 tempfile = "3"
 futures-util = "0.3"
+
+[target.'cfg(windows)'.dependencies]
+junction = { version = "2", default-features = false }

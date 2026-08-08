@@ -12,8 +12,24 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  validate:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Match tag to Cargo package version
+        run: |
+          PACKAGE_VERSION=$(cargo metadata --locked --no-deps --format-version 1 \
+            | jq -r '.packages[] | select(.name == "jm") | .version')
+          if [ "$GITHUB_REF_NAME" != "v$PACKAGE_VERSION" ]; then
+            echo "Release tag $GITHUB_REF_NAME does not match Cargo.toml version v$PACKAGE_VERSION" >&2
+            exit 1
+          fi
+
   build:
     name: Build (${{ matrix.target }})
+    needs: validate
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -37,7 +53,7 @@ jobs:
             artifact: jm-windows-x86_64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -57,11 +73,11 @@ jobs:
 
       - name: Build (cross)
         if: matrix.use_cross
-        run: cross build --release --target ${{ matrix.target }}
+        run: cross build --locked --release --target ${{ matrix.target }}
 
       - name: Build (cargo)
         if: "!matrix.use_cross"
-        run: cargo build --release --target ${{ matrix.target }}
+        run: cargo build --locked --release --target ${{ matrix.target }}
 
       - name: Package (Unix)
         if: runner.os != 'Windows'
@@ -78,7 +94,7 @@ jobs:
           cd ../../..
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: |
@@ -90,10 +106,10 @@ jobs:
     needs: build
     runs-on: macos-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: jm-macos-x86_64
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: jm-macos-aarch64
 
@@ -106,7 +122,7 @@ jobs:
           tar czf jm-macos-universal.tar.gz jm
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jm-macos-universal
           path: jm-macos-universal.tar.gz
@@ -116,11 +132,11 @@ jobs:
     needs: [build, universal-macos]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
@@ -141,16 +157,7 @@ jobs:
           OUTPUT: CHANGES.md
           GITHUB_REPO: ${{ github.repository }}
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: CHANGES.md
-          files: |
-            artifacts/*.tar.gz
-            artifacts/*.zip
-            artifacts/sha256sums.txt
-
-      - name: Update Homebrew formula
+      - name: Generate Homebrew formula
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           SHA_MACOS=$(grep 'jm-macos-universal.tar.gz' artifacts/sha256sums.txt | awk '{print $1}')
@@ -164,7 +171,7 @@ jobs:
           echo "Generated Homebrew formula for v$VERSION"
           cat artifacts/jm.rb
 
-      - name: Update Scoop manifest
+      - name: Generate Scoop manifest
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           SHA_WIN=$(grep 'jm-windows-x86_64.zip' artifacts/sha256sums.txt | awk '{print $1}')
@@ -173,3 +180,14 @@ jobs:
               packaging/scoop/jm.json > artifacts/jm.json
           echo "Generated Scoop manifest for v$VERSION"
           cat artifacts/jm.json
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          body_path: CHANGES.md
+          files: |
+            artifacts/*.tar.gz
+            artifacts/*.zip
+            artifacts/sha256sums.txt
+            artifacts/jm.rb
+            artifacts/jm.json

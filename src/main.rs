@@ -52,12 +52,11 @@ async fn main() {
         Commands::Use {
             version,
             global,
-            install: _,
-        } => commands::use_cmd::run(&version, global),
-        Commands::Default {
-            version,
-            install: _,
-        } => commands::default_cmd::run(version.as_deref()),
+            install,
+        } => commands::use_cmd::run(&version, global, install).await,
+        Commands::Default { version, install } => {
+            commands::default_cmd::run(version.as_deref(), install).await
+        }
         Commands::Current => commands::current::run(),
         Commands::Which { binary } => commands::which::run(&binary),
         Commands::Env {

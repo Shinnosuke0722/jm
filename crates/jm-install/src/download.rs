@@ -1,8 +1,30 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use jm_api::models::DownloadInfo;
 use jm_core::error::{JmError, Result};
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 use tokio::io::AsyncWriteExt;
+
+/// Return whether `value` is a single, ordinary filename component on every
+/// supported platform.
+///
+/// Both separator styles are rejected explicitly so that a filename accepted
+/// on Unix cannot become a path on Windows later. Colons are rejected as well
+/// to exclude Windows drive prefixes and alternate data streams.
+pub fn is_safe_filename_component(value: &str) -> bool {
+    if value.is_empty()
+        || value
+            .chars()
+            .any(|c| matches!(c, '/' | '\\' | ':' | '\0') || c.is_control())
+    {
+        return false;
+    }
+
+    let mut components = Path::new(value).components();
+    matches!(
+        (components.next(), components.next()),
+        (Some(Component::Normal(_)), None)
+    )
+}
 
 /// Guard that cleans up the .part file if dropped before `defuse()` is called.
 /// Ensures partial downloads are removed on error, panic, or Ctrl+C.
@@ -43,6 +65,13 @@ pub async fn download_jdk_with_proxy(
     downloads_dir: &Path,
     proxy: Option<&str>,
 ) -> Result<PathBuf> {
+    if !is_safe_filename_component(&info.filename) {
+        return Err(JmError::DownloadFailed(format!(
+            "unsafe download filename {:?}: expected one ordinary filename component",
+            info.filename
+        )));
+    }
+
     std::fs::create_dir_all(downloads_dir)?;
     let dest = downloads_dir.join(&info.filename);
 
@@ -121,4 +150,43 @@ pub async fn download_jdk_with_proxy(
     pb.finish_with_message("Download complete");
 
     Ok(dest)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn accepts_regular_archive_filenames() {
+        for filename in [
+            "OpenJDK21U-jdk_x64_windows_hotspot_21.0.8_9.zip",
+            "OpenJDK21U-jdk_x64_linux_hotspot_21.0.8_9.tar.gz",
+            "zulu21.44.17-ca-jdk21.0.8-linux_x64.tar.gz",
+        ] {
+            assert!(is_safe_filename_component(filename), "{filename}");
+        }
+    }
+
+    #[test]
+    fn rejects_cross_platform_path_escape_filenames() {
+        for filename in [
+            "",
+            ".",
+            "..",
+            "../jdk.zip",
+            "..\\jdk.zip",
+            "nested/jdk.zip",
+            "nested\\jdk.zip",
+            "/tmp/jdk.zip",
+            "C:\\temp\\jdk.zip",
+            "C:/temp/jdk.zip",
+            "C:jdk.zip",
+            "\\\\server\\share\\jdk.zip",
+            "jdk.zip:stream",
+            "jdk\n.zip",
+            "jdk\0.zip",
+        ] {
+            assert!(!is_safe_filename_component(filename), "{filename:?}");
+        }
+    }
 }

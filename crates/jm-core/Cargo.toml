@@ -3,10 +3,10 @@ name = "jm-core"
 version = "1.0.0"
 edition = "2021"
 rust-version = "1.82"
-description = "Core types and logic for jm JDK version manager"
+description = "Core types and project resolution for the jm JDK version manager"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/lfming0419/jm"
+repository = "https://github.com/Shinnosuke0722/jm"
 
 [dependencies]
 serde = { workspace = true }

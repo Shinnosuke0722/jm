@@ -3,10 +3,10 @@ name = "jm-api"
 version = "1.0.0"
 edition = "2021"
 rust-version = "1.82"
-description = "API clients for jm JDK version manager"
+description = "JDK discovery API clients for the jm Java version manager"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/lfming0419/jm"
+repository = "https://github.com/Shinnosuke0722/jm"
 
 [dependencies]
 jm-core = { path = "../jm-core" }

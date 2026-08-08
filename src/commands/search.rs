@@ -16,6 +16,29 @@ pub async fn run(
     arch_override: Option<&str>,
     limit: usize,
 ) -> Result<()> {
+    let distribution = distribution
+        .map(|value| {
+            let parsed = Distribution::parse(value);
+            parsed.validate()?;
+            Ok::<_, jm_core::error::JmError>(parsed)
+        })
+        .transpose()?;
+
+    // Determine if query is a version number or distribution name before any
+    // network client is constructed, so invalid names fail locally.
+    let (major_version, dist_filter) = if let Ok(version) = query.parse::<u32>() {
+        (
+            Some(version),
+            distribution
+                .as_ref()
+                .map(|value| value.api_parameter().to_string()),
+        )
+    } else {
+        let parsed = Distribution::parse(query);
+        parsed.validate()?;
+        (None, Some(parsed.api_parameter().to_string()))
+    };
+
     let dirs = StorageDirs::resolve()?;
     dirs.ensure_dirs()?;
     let config = Config::load(&dirs)?;
@@ -24,18 +47,6 @@ pub async fn run(
     let cache = ApiCache::new(dirs.api_cache_dir());
     let client =
         DiscoClient::with_proxy(config.api.disco_api_url, cache, config.api.proxy.as_deref())?;
-
-    // Determine if query is a version number or distribution name
-    let (major_version, dist_filter) = if let Ok(v) = query.parse::<u32>() {
-        (
-            Some(v),
-            distribution.map(|d| Distribution::parse(d).api_parameter().to_string()),
-        )
-    } else {
-        // Treat as distribution name
-        let dist = Distribution::parse(query);
-        (None, Some(dist.api_parameter().to_string()))
-    };
 
     let pkg_query = PackageQuery {
         major_version,

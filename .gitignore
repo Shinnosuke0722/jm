@@ -1,9 +1,6 @@
 # Build
 /target
 
-# Dependencies
-Cargo.lock
-
 # IDE - VSCode
 .vscode/
 *.code-workspace

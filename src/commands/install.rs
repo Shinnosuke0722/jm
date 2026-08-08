@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use console::style;
 use jm_api::adoptium::AdoptiumClient;
 use jm_api::cache::ApiCache;
@@ -12,6 +12,7 @@ use jm_core::platform::Platform;
 use jm_core::registry::{Installation, Registry};
 use jm_core::storage::StorageDirs;
 use jm_install::{download, extract, link, verify};
+use std::path::Path;
 
 use crate::output;
 
@@ -27,17 +28,14 @@ pub async fn run(
     let config = Config::load(&dirs)?;
     let platform = Platform::current()?;
 
-    // Parse version spec
+    // Parse the version spec and validate the selected distribution regardless
+    // of whether it came from the spec, --distribution, or configuration.
     let mut spec = VersionSpec::parse(version)?;
-    if spec.distribution.is_none() {
-        if let Some(dist) = distribution_override {
-            let d = Distribution::parse(dist);
-            d.validate()?;
-            spec.distribution = Some(d);
-        } else {
-            spec.distribution = Some(Distribution::parse(&config.global.preferred_distribution));
-        }
-    }
+    resolve_distribution(
+        &mut spec,
+        distribution_override,
+        &config.global.preferred_distribution,
+    )?;
     let dist = spec.distribution.as_ref().unwrap();
 
     output::print_info(&format!(
@@ -87,28 +85,41 @@ pub async fn run(
             }
         };
 
+    // Treat all provider-controlled path material as untrusted. Constructing
+    // the destination through this helper guarantees it stays one lexical
+    // child beneath the JDK installation directory.
+    let (install_id, final_dir) =
+        build_install_destination(&dirs.jdks_dir(), dist, &package.java_version)?;
+
     output::print_info(&format!(
         "Found {} ({}) via {}",
         style(&package.java_version).green(),
-        &package.filename,
+        package.filename,
         provider_name,
     ));
 
-    // Check if already installed (quick check before expensive download)
-    let install_id = format!("{}-{}", dist.api_parameter(), &package.java_version);
-    {
-        let registry = Registry::load(&dirs)?;
-        if registry.find_by_id(&install_id).is_some() {
-            output::print_warning(&format!("{} is already installed", install_id));
-            return Ok(());
-        }
+    // Check if already installed before the expensive download. A concurrent
+    // `jm install` may have won the race after use/default first checked the
+    // registry, so this path must still honor the requested selection flags.
+    if let Some(existing) = Registry::load(&dirs)?.find_by_id(&install_id).cloned() {
+        output::print_warning(&format!("{} is already installed", install_id));
+        apply_requested_selection(
+            &dirs,
+            &existing.id,
+            &existing.path,
+            set_default,
+            set_local,
+            Path::new(".java-version"),
+        )?;
+        print_selection_success(&existing.id, set_default, set_local);
+        return Ok(());
     }
 
     // Resolve download URL
     let download_info = provider.resolve_download(&package).await?;
 
     // Download
-    output::print_info(&format!("Downloading {}...", &download_info.filename));
+    output::print_info(&format!("Downloading {}...", download_info.filename));
     let archive_path =
         download::download_jdk_with_proxy(&download_info, &dirs.downloads_dir(), proxy).await?;
 
@@ -129,7 +140,6 @@ pub async fn run(
     let jdk_home = extract::extract_archive(&archive_path, temp_dir.path(), platform.os)?;
 
     // Move to final location
-    let final_dir = dirs.jdks_dir().join(&install_id);
     if final_dir.exists() {
         std::fs::remove_dir_all(&final_dir)?;
     }
@@ -157,18 +167,18 @@ pub async fn run(
         let _ = std::fs::remove_file(&archive_path);
     }
 
-    // Set as default if requested or if it's the first installation
-    if set_default || installation_count == 1 {
-        link::set_current_link(&dirs.current_link(), &final_dir)?;
-        output::print_success(&format!("Set {} as global default", &install_id));
-    }
-
-    // Write .java-version if requested
-    if set_local {
-        let java_version_content = format!("{}\n", &install_id);
-        std::fs::write(".java-version", java_version_content)?;
-        output::print_success("Created .java-version file");
-    }
+    // Set as default if requested or if it's the first installation, and
+    // write the project pin when requested.
+    let make_default = set_default || installation_count == 1;
+    apply_requested_selection(
+        &dirs,
+        &install_id,
+        &final_dir,
+        make_default,
+        set_local,
+        Path::new(".java-version"),
+    )?;
+    print_selection_success(&install_id, make_default, set_local);
 
     output::print_success(&format!(
         "Installed {} at {}",
@@ -177,6 +187,73 @@ pub async fn run(
     ));
 
     Ok(())
+}
+
+fn resolve_distribution(
+    spec: &mut VersionSpec,
+    distribution_override: Option<&str>,
+    preferred_distribution: &str,
+) -> Result<()> {
+    if spec.distribution.is_none() {
+        let selected = distribution_override.unwrap_or(preferred_distribution);
+        spec.distribution = Some(Distribution::parse(selected));
+    }
+
+    spec.distribution
+        .as_ref()
+        .expect("distribution was assigned above")
+        .validate()?;
+    Ok(())
+}
+
+fn build_install_destination(
+    jdks_dir: &Path,
+    distribution: &Distribution,
+    java_version: &str,
+) -> Result<(String, std::path::PathBuf)> {
+    distribution.validate()?;
+    if !download::is_safe_filename_component(java_version) {
+        bail!(
+            "unsafe Java version from provider {:?}: expected one ordinary filename component",
+            java_version
+        );
+    }
+
+    let install_id = format!("{}-{}", distribution.api_parameter(), java_version);
+    if !download::is_safe_filename_component(&install_id) {
+        bail!(
+            "unsafe installation identifier {:?}: expected one ordinary filename component",
+            install_id
+        );
+    }
+
+    Ok((install_id.clone(), jdks_dir.join(install_id)))
+}
+
+fn apply_requested_selection(
+    dirs: &StorageDirs,
+    install_id: &str,
+    install_path: &Path,
+    set_default: bool,
+    set_local: bool,
+    local_version_path: &Path,
+) -> Result<()> {
+    if set_default {
+        link::set_current_link(&dirs.current_link(), install_path)?;
+    }
+    if set_local {
+        std::fs::write(local_version_path, format!("{}\n", install_id))?;
+    }
+    Ok(())
+}
+
+fn print_selection_success(install_id: &str, set_default: bool, set_local: bool) {
+    if set_default {
+        output::print_success(&format!("Set {} as global default", install_id));
+    }
+    if set_local {
+        output::print_success("Created .java-version file");
+    }
 }
 
 fn move_dir(src: &std::path::Path, dest: &std::path::Path) -> Result<()> {
@@ -203,4 +280,91 @@ fn copy_dir_recursive(src: &std::path::Path, dest: &std::path::Path) -> std::io:
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn validates_distribution_from_every_source() {
+        let mut preferred = VersionSpec::parse("21").unwrap();
+        assert!(resolve_distribution(&mut preferred, None, "../../escape").is_err());
+
+        let mut overridden = VersionSpec::parse("21").unwrap();
+        assert!(resolve_distribution(&mut overridden, Some("..\\escape"), "temurin").is_err());
+
+        let mut explicit = VersionSpec::parse("custom_dist-21").unwrap();
+        resolve_distribution(&mut explicit, None, "../../ignored").unwrap();
+        assert_eq!(
+            explicit.distribution.unwrap().api_parameter(),
+            "custom_dist"
+        );
+    }
+
+    #[test]
+    fn builds_only_single_component_install_destinations() {
+        let root = Path::new("jdks");
+        let (id, path) =
+            build_install_destination(root, &Distribution::Temurin, "21.0.8+9").unwrap();
+        assert_eq!(id, "temurin-21.0.8+9");
+        assert_eq!(path, root.join(&id));
+
+        for version in [
+            "",
+            ".",
+            "..",
+            "../outside",
+            "..\\outside",
+            "/tmp/outside",
+            "C:\\temp\\outside",
+            "C:/temp/outside",
+            "C:outside",
+            "21:stream",
+            "21\n",
+            "21\0",
+        ] {
+            assert!(
+                build_install_destination(root, &Distribution::Temurin, version).is_err(),
+                "{version:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn already_installed_selection_honors_default_and_local_flags() {
+        let temp = tempfile::tempdir().unwrap();
+        let dirs = StorageDirs {
+            data_dir: temp.path().join("data"),
+            config_dir: temp.path().join("config"),
+            cache_dir: temp.path().join("cache"),
+        };
+        dirs.ensure_dirs().unwrap();
+
+        let install_id = "temurin-21.0.8+9";
+        let install_path = dirs.jdks_dir().join(install_id);
+        std::fs::create_dir(&install_path).unwrap();
+        let local_version_path = temp.path().join("project.java-version");
+
+        apply_requested_selection(
+            &dirs,
+            install_id,
+            &install_path,
+            true,
+            true,
+            &local_version_path,
+        )
+        .unwrap();
+
+        assert_eq!(
+            link::read_current_link(&dirs.current_link())
+                .unwrap()
+                .unwrap(),
+            install_path
+        );
+        assert_eq!(
+            std::fs::read_to_string(local_version_path).unwrap(),
+            format!("{}\n", install_id)
+        );
+    }
 }

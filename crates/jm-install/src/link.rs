@@ -25,24 +25,85 @@ pub fn set_current_link(link_path: &Path, target: &Path) -> Result<()> {
 #[cfg(windows)]
 pub fn set_current_link(link_path: &Path, target: &Path) -> Result<()> {
     let parent = link_path.parent().unwrap_or_else(|| Path::new("."));
-
     let tmp_link = parent.join(format!(".current.tmp.{}", std::process::id()));
 
-    let _ = std::fs::remove_dir(&tmp_link);
-    std::os::windows::fs::symlink_dir(target, &tmp_link)?;
-
-    // On Windows, rename over an existing symlink_dir may fail,
-    // so remove the old one first, then rename. Not perfectly atomic
-    // but much smaller race window.
-    if link_path.exists() || link_path.symlink_metadata().is_ok() {
-        let _ = std::fs::remove_dir(link_path);
+    // A directory junction works without Developer Mode or administrator
+    // privileges. Build it beside `current` first to keep the replacement
+    // window as short as possible.
+    remove_current_link(&tmp_link)?;
+    if let Err(error) = junction::create(target, &tmp_link) {
+        let _ = std::fs::remove_dir(&tmp_link);
+        return Err(error.into());
     }
-    std::fs::rename(&tmp_link, link_path)?;
+
+    if let Err(error) = remove_current_link(link_path) {
+        let _ = remove_current_link(&tmp_link);
+        return Err(error);
+    }
+    if let Err(error) = std::fs::rename(&tmp_link, link_path) {
+        let _ = remove_current_link(&tmp_link);
+        return Err(error.into());
+    }
 
     Ok(())
 }
 
-/// Read the target of the `current` symlink.
+/// Remove the `current` symlink or junction without touching its target.
+#[cfg(unix)]
+pub fn remove_current_link(link_path: &Path) -> Result<()> {
+    match link_path.symlink_metadata() {
+        Ok(metadata) if metadata.file_type().is_symlink() => {
+            std::fs::remove_file(link_path)?;
+            Ok(())
+        }
+        Ok(_) => Err(std::io::Error::new(
+            std::io::ErrorKind::InvalidInput,
+            format!(
+                "refusing to remove non-symlink path: {}",
+                link_path.display()
+            ),
+        )
+        .into()),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(error.into()),
+    }
+}
+
+/// Remove the `current` symlink or junction without touching its target.
+#[cfg(windows)]
+pub fn remove_current_link(link_path: &Path) -> Result<()> {
+    let metadata = match link_path.symlink_metadata() {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(error.into()),
+    };
+
+    // `junction::exists` follows the target and therefore returns false for a
+    // broken junction. `get_target` inspects the reparse point directly.
+    if junction::get_target(link_path).is_ok() {
+        junction::delete(link_path)?;
+        std::fs::remove_dir(link_path)?;
+        return Ok(());
+    }
+
+    if metadata.file_type().is_symlink() {
+        // Directory symlinks require RemoveDirectoryW, while file symlinks use
+        // DeleteFileW. Trying both also handles a broken directory symlink.
+        if std::fs::remove_dir(link_path).is_err() {
+            std::fs::remove_file(link_path)?;
+        }
+        return Ok(());
+    }
+
+    Err(std::io::Error::new(
+        std::io::ErrorKind::InvalidInput,
+        format!("refusing to remove non-link path: {}", link_path.display()),
+    )
+    .into())
+}
+
+/// Read the target of the `current` symlink or junction.
+#[cfg(unix)]
 pub fn read_current_link(link_path: &Path) -> Result<Option<std::path::PathBuf>> {
     if !link_path.exists() && link_path.symlink_metadata().is_err() {
         return Ok(None);
@@ -51,8 +112,23 @@ pub fn read_current_link(link_path: &Path) -> Result<Option<std::path::PathBuf>>
     Ok(Some(target))
 }
 
+/// Read the target of the `current` symlink or junction.
+#[cfg(windows)]
+pub fn read_current_link(link_path: &Path) -> Result<Option<std::path::PathBuf>> {
+    match link_path.symlink_metadata() {
+        Ok(_) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(error) => return Err(error.into()),
+    }
+
+    if let Ok(target) = junction::get_target(link_path) {
+        return Ok(Some(target));
+    }
+
+    Ok(Some(std::fs::read_link(link_path)?))
+}
+
 #[cfg(test)]
-#[cfg(unix)]
 mod tests {
     use super::*;
 
@@ -99,5 +175,35 @@ mod tests {
             .filter(|e| e.file_name().to_string_lossy().starts_with(".current.tmp."))
             .collect();
         assert!(temps.is_empty());
+    }
+
+    #[test]
+    fn remove_link_keeps_target() {
+        let dir = tempfile::tempdir().unwrap();
+        let target = dir.path().join("jdk-21");
+        std::fs::create_dir(&target).unwrap();
+        let link = dir.path().join("current");
+
+        set_current_link(&link, &target).unwrap();
+        remove_current_link(&link).unwrap();
+
+        assert!(target.exists());
+        assert!(link.symlink_metadata().is_err());
+    }
+
+    #[test]
+    fn read_and_remove_broken_link() {
+        let dir = tempfile::tempdir().unwrap();
+        let target = dir.path().join("jdk-21");
+        std::fs::create_dir(&target).unwrap();
+        let link = dir.path().join("current");
+
+        set_current_link(&link, &target).unwrap();
+        std::fs::remove_dir(&target).unwrap();
+
+        let read = read_current_link(&link).unwrap().unwrap();
+        assert_eq!(read, target);
+        remove_current_link(&link).unwrap();
+        assert!(link.symlink_metadata().is_err());
     }
 }

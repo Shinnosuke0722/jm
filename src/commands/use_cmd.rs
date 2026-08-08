@@ -7,7 +7,7 @@ use jm_install::link;
 
 use crate::output;
 
-pub fn run(version: &str, global: bool) -> Result<()> {
+pub async fn run(version: &str, global: bool, install_if_missing: bool) -> Result<()> {
     let dirs = StorageDirs::resolve()?;
     let registry = Registry::load(&dirs)?;
 
@@ -16,6 +16,9 @@ pub fn run(version: &str, global: bool) -> Result<()> {
 
     let installation = match matches.len() {
         0 => {
+            if install_if_missing {
+                return super::install::run(version, None, global, !global, false).await;
+            }
             output::print_error(&format!(
                 "No installed JDK matches '{}'. Run 'jm install {}' first.",
                 version, version
@@ -40,7 +43,7 @@ pub fn run(version: &str, global: bool) -> Result<()> {
         ));
     } else {
         // Write .java-version file
-        let content = format!("{}\n", &installation.id);
+        let content = format!("{}\n", installation.id);
         std::fs::write(".java-version", content)?;
         output::print_success(&format!(
             "Set {} for current project (wrote .java-version)",

@@ -45,7 +45,8 @@ impl Distribution {
 
     /// Parse a distribution from a user-supplied string.
     /// Supports common aliases and SDKMAN suffixes.
-    /// Returns `Err` if the name contains invalid characters (only `[a-zA-Z0-9_-]` allowed).
+    /// Call [`Distribution::validate`] before using an `Other` value in a path
+    /// or API parameter.
     pub fn parse(s: &str) -> Self {
         match s.to_lowercase().as_str() {
             "temurin" | "tem" | "adoptium" | "eclipse" => Self::Temurin,

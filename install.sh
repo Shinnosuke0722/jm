@@ -1,16 +1,16 @@
 #!/bin/sh
-# jm installer — https://github.com/lfming0419/jm
+# jm installer — https://github.com/Shinnosuke0722/jm
 #
 # Usage:
-#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh
-#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --version v1.0.0
-#   curl -fsSL https://raw.githubusercontent.com/lfming0419/jm/main/install.sh | sh -s -- --install-dir /usr/local/bin
+#   curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh | sh -s -- --version v1.0.0
+#   curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh | sh -s -- --install-dir /usr/local/bin
 
 set -eu
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 
-REPO="lfming0419/jm"
+REPO="Shinnosuke0722/jm"
 BINARY_NAME="jm"
 DEFAULT_INSTALL_DIR="${HOME}/.jm/bin"
 
@@ -168,18 +168,20 @@ main() {
         info "Verifying checksum..."
         CHECKSUMS_FILE="${TMP_DIR}/sha256sums.txt"
         if download "$CHECKSUMS_URL" "$CHECKSUMS_FILE" 2>/dev/null; then
-            EXPECTED=$(grep "${ARTIFACT}.${EXT}" "$CHECKSUMS_FILE" | awk '{ print $1 }')
-            if [ -n "$EXPECTED" ]; then
-                if has_cmd sha256sum; then
-                    ACTUAL=$(sha256sum "$ARCHIVE_PATH" | awk '{ print $1 }')
-                else
-                    ACTUAL=$(shasum -a 256 "$ARCHIVE_PATH" | awk '{ print $1 }')
-                fi
-                if [ "$EXPECTED" != "$ACTUAL" ]; then
-                    error "Checksum mismatch!\n  Expected: ${EXPECTED}\n  Actual:   ${ACTUAL}"
-                fi
-                success "Checksum verified"
+            ARTIFACT_FILE="${ARTIFACT}.${EXT}"
+            EXPECTED=$(awk -v file="$ARTIFACT_FILE" '$2 == file { print $1; exit }' "$CHECKSUMS_FILE")
+            if [ -z "$EXPECTED" ]; then
+                error "Checksum list does not contain ${ARTIFACT_FILE}"
             fi
+            if has_cmd sha256sum; then
+                ACTUAL=$(sha256sum "$ARCHIVE_PATH" | awk '{ print $1 }')
+            else
+                ACTUAL=$(shasum -a 256 "$ARCHIVE_PATH" | awk '{ print $1 }')
+            fi
+            if [ "$EXPECTED" != "$ACTUAL" ]; then
+                error "Checksum mismatch!\n  Expected: ${EXPECTED}\n  Actual:   ${ACTUAL}"
+            fi
+            success "Checksum verified"
         fi
     fi
 

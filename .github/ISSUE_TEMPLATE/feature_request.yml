@@ -1,0 +1,71 @@
+name: Feature request
+description: Propose an improvement to jm
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Describe the user problem first so different solutions can be evaluated fairly.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or use case
+      description: What are you trying to accomplish, and who benefits from it?
+      placeholder: "When ..., I need ..., because ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior, command, configuration, distribution, or integration you would like jm to support.
+    validations:
+      required: true
+
+  - type: textarea
+    id: example
+    attributes:
+      label: Example user experience
+      description: Show an example command, configuration, or workflow if applicable.
+      render: shell
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: How do you solve this today, and what trade-offs do those alternatives have?
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: platforms
+    attributes:
+      label: Relevant platforms
+      description: Select every platform affected by the request.
+      options:
+        - label: Windows
+        - label: macOS
+        - label: Linux
+        - label: Platform-independent
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Add links, prior art, screenshots, or implementation notes that may help.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checklist
+      options:
+        - label: I searched the existing issues and did not find a duplicate request.
+          required: true
+        - label: I described the underlying user problem, not only a preferred implementation.
+          required: true
+        - label: I agree to follow this project's Code of Conduct.
+          required: true

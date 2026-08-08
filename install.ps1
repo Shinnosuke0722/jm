@@ -1,9 +1,9 @@
-# jm installer for Windows — https://github.com/lfming0419/jm
+# jm installer for Windows — https://github.com/Shinnosuke0722/jm
 #
 # Usage:
-#   irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.ps1 | iex
 #   # Or with options:
-#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/lfming0419/jm/main/install.ps1))) -Version v1.0.0
+#   & ([scriptblock]::Create((irm https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.ps1))) -Version v1.0.0
 
 param(
     [string]$Version = "",
@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 
 # ─── Configuration ──────────────────────────────────────────────────────────
 
-$Repo = "lfming0419/jm"
+$Repo = "Shinnosuke0722/jm"
 $BinaryName = "jm.exe"
 $DefaultInstallDir = "$env:USERPROFILE\.jm\bin"
 
@@ -34,7 +34,7 @@ function Get-Arch {
     $arch = [System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture
     switch ($arch) {
         "X64"   { return "x86_64" }
-        "Arm64" { return "aarch64" }
+        "Arm64" { Write-Err "Windows ARM64 release artifacts are not available yet. Build jm from source, or manually install the x86-64 release for use under emulation." }
         default { Write-Err "Unsupported architecture: $arch" }
     }
 }
@@ -89,15 +89,19 @@ try {
     $ChecksumsUrl = "https://github.com/$Repo/releases/download/$Version/sha256sums.txt"
     try {
         $Checksums = Invoke-RestMethod -Uri $ChecksumsUrl -Headers @{ "User-Agent" = "jm-installer" }
-        $ExpectedLine = ($Checksums -split "`n") | Where-Object { $_ -match "$Artifact.zip" } | Select-Object -First 1
-        if ($ExpectedLine) {
-            $Expected = ($ExpectedLine -split "\s+")[0]
-            $Actual = (Get-FileHash -Path $ZipPath -Algorithm SHA256).Hash.ToLower()
-            if ($Expected -ne $Actual) {
-                Write-Err "Checksum mismatch!`n  Expected: $Expected`n  Actual:   $Actual"
-            }
-            Write-Success "Checksum verified"
+        $ArtifactFile = "$Artifact.zip"
+        $ExpectedLine = ($Checksums -split "`n") | Where-Object {
+            (($_ -split "\s+")[-1]).Trim() -eq $ArtifactFile
+        } | Select-Object -First 1
+        if (-not $ExpectedLine) {
+            Write-Err "Checksum list does not contain $ArtifactFile"
         }
+        $Expected = ($ExpectedLine -split "\s+")[0].ToLower()
+        $Actual = (Get-FileHash -Path $ZipPath -Algorithm SHA256).Hash.ToLower()
+        if ($Expected -ne $Actual) {
+            Write-Err "Checksum mismatch!`n  Expected: $Expected`n  Actual:   $Actual"
+        }
+        Write-Success "Checksum verified"
     }
     catch {
         Write-Info "Skipping checksum verification (could not fetch checksums)"

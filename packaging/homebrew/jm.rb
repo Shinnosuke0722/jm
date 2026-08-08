@@ -1,28 +1,28 @@
 # Homebrew formula for jm — JDK version manager
-# To use: brew tap lfming0419/jm && brew install jm
+# Release template only; no official Homebrew tap is currently published.
 #
 # Maintainers: after a release, update `version`, `url`, and `sha256`
 # for each platform block. The release workflow can automate this via:
 #   sed -i "s/VERSION_PLACEHOLDER/x.y.z/g" jm.rb
 
 class Jm < Formula
-  desc "A fast, cross-platform JDK version manager"
-  homepage "https://github.com/lfming0419/jm"
+  desc "Cross-platform JDK and Java version manager"
+  homepage "https://github.com/Shinnosuke0722/jm"
   license any_of: ["MIT", "Apache-2.0"]
   version "VERSION_PLACEHOLDER"
 
   on_macos do
-    url "https://github.com/lfming0419/jm/releases/download/v#{version}/jm-macos-universal.tar.gz"
+    url "https://github.com/Shinnosuke0722/jm/releases/download/v#{version}/jm-macos-universal.tar.gz"
     sha256 "SHA256_MACOS_PLACEHOLDER"
   end
 
   on_linux do
     on_intel do
-      url "https://github.com/lfming0419/jm/releases/download/v#{version}/jm-linux-x86_64.tar.gz"
+      url "https://github.com/Shinnosuke0722/jm/releases/download/v#{version}/jm-linux-x86_64.tar.gz"
       sha256 "SHA256_LINUX_X86_64_PLACEHOLDER"
     end
     on_arm do
-      url "https://github.com/lfming0419/jm/releases/download/v#{version}/jm-linux-aarch64.tar.gz"
+      url "https://github.com/Shinnosuke0722/jm/releases/download/v#{version}/jm-linux-aarch64.tar.gz"
       sha256 "SHA256_LINUX_AARCH64_PLACEHOLDER"
     end
   end

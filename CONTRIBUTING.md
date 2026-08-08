@@ -12,22 +12,22 @@ Thank you for your interest in contributing to jm! This guide will help you get 
 ### Building
 
 ```bash
-git clone https://github.com/lfming0419/jm.git
+git clone https://github.com/Shinnosuke0722/jm.git
 cd jm
-cargo build
+cargo build --locked
 ```
 
 ### Running Tests
 
 ```bash
 # All tests
-cargo test --workspace
+cargo test --workspace --locked
 
 # Unit tests only
-cargo test --workspace --lib
+cargo test --workspace --lib --locked
 
 # Integration tests only
-cargo test --test integration
+cargo test --test integration --locked
 
 # Benchmarks
 cargo bench --bench benchmarks
@@ -37,7 +37,7 @@ cargo bench --bench benchmarks
 
 ```bash
 cargo fmt --all -- --check
-cargo clippy --workspace --tests -- -D warnings
+cargo clippy --workspace --all-targets --locked -- -D warnings
 ```
 
 ## Project Structure
@@ -81,6 +81,10 @@ perf: cache parsed version specs
 3. Ensure all checks pass: `cargo fmt`, `cargo clippy`, `cargo test`
 4. Open a PR against `main` with a clear description
 
+Please update tests and user-facing documentation when behavior changes. Keep
+the English and Simplified Chinese README files aligned for installation,
+platform support, command behavior, and security-sensitive claims.
+
 ## Adding a New Command
 
 1. Create `src/commands/your_cmd.rs` with a `pub fn run(...) -> Result<()>`
@@ -97,6 +101,24 @@ Known distributions are listed in `crates/jm-core/src/distribution.rs`. To add o
 3. Add tests
 
 Unknown distributions are automatically handled via `Distribution::Other(name)`.
+Whether a distribution can actually be installed depends on the current Foojay
+catalog for the requested Java version and platform.
+
+## Documentation Claims
+
+Documentation should describe behavior that is implemented and verifiable in the
+current repository. Avoid hard-coded distribution counts, performance claims
+without an end-to-end benchmark, or package-manager installation commands until
+the corresponding channel is published and maintained.
+
+In particular:
+
+- `.sdkmanrc` support means reading its `java=` entry; it is not full SDKMAN
+  compatibility.
+- JDK SHA-256 verification occurs when verification is enabled and the upstream
+  provider supplies a checksum.
+- Files under `packaging/` are release templates unless an official tap or bucket
+  is linked from the main README.
 
 ## License
 
