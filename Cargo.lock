@@ -1168,7 +1168,7 @@ dependencies = [
  "clap",
  "clap_complete",
  "comfy-table",
- "console 0.15.11",
+ "console 0.16.4",
  "criterion",
  "dialoguer",
  "flate2",
@@ -1222,7 +1222,7 @@ dependencies = [
 name = "jm-install"
 version = "1.0.1"
 dependencies = [
- "console 0.15.11",
+ "console 0.16.4",
  "flate2",
  "futures-util",
  "indicatif",
@@ -1770,7 +1770,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.4.15",
- "windows-sys 0.59.0",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

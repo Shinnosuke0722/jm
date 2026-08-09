@@ -25,7 +25,7 @@ zip = { version = "2", default-features = false, features = ["deflate"] }
 # 0.18.5 raises its MSRV to Rust 1.85; 0.18.4 is the latest release that
 # supports the workspace's declared Rust 1.82 baseline.
 indicatif = "=0.18.4"
-console = "0.15"
+console = "0.16"
 tempfile = "3"
 futures-util = "0.3"
 
