@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use console::style;
 use jm_core::java_version::VersionSpec;
 use jm_core::registry::Registry;

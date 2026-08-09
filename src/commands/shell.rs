@@ -21,7 +21,7 @@ pub fn init(shell_name: &str) -> Result<()> {
 
 pub fn completions(shell_name: &str) -> Result<()> {
     use clap::CommandFactory;
-    use clap_complete::{generate, Shell as ClapShell};
+    use clap_complete::{Shell as ClapShell, generate};
 
     let shell = match shell_name.to_lowercase().as_str() {
         "bash" => ClapShell::Bash,

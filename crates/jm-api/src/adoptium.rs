@@ -3,8 +3,8 @@ use crate::provider::{JdkProvider, PackageQuery};
 use jm_core::error::JmError;
 use jm_core::java_version::JavaVersion;
 use reqwest::Client;
-use serde::de::DeserializeOwned;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use url::Url;
 
 const ADOPTIUM_BASE_URL: &str = "https://api.adoptium.net/v3";
@@ -364,7 +364,7 @@ impl JdkProvider for AdoptiumClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
     use wiremock::matchers::{method, path, path_regex, query_param};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 

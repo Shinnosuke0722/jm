@@ -1,4 +1,4 @@
-use comfy_table::{presets, Table};
+use comfy_table::{Table, presets};
 use console::style;
 
 /// Create a styled table with the jm default settings.

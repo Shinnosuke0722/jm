@@ -30,14 +30,14 @@ pub struct DetectedVersion {
 /// 3. `.sdkmanrc` file
 pub fn detect_version(start: &Path) -> Result<Option<DetectedVersion>> {
     // Check environment variable first
-    if let Ok(val) = std::env::var("JM_JAVA_VERSION") {
-        if !val.is_empty() {
-            let spec = VersionSpec::parse(&val)?;
-            return Ok(Some(DetectedVersion {
-                spec,
-                source: VersionSource::EnvVar,
-            }));
-        }
+    if let Ok(val) = std::env::var("JM_JAVA_VERSION")
+        && !val.is_empty()
+    {
+        let spec = VersionSpec::parse(&val)?;
+        return Ok(Some(DetectedVersion {
+            spec,
+            source: VersionSource::EnvVar,
+        }));
     }
 
     // Walk up the directory tree
@@ -59,13 +59,13 @@ pub fn detect_version(start: &Path) -> Result<Option<DetectedVersion>> {
 
         // Check .sdkmanrc
         let sdkmanrc = dir.join(".sdkmanrc");
-        if sdkmanrc.exists() {
-            if let Some(spec) = parse_sdkmanrc(&sdkmanrc)? {
-                return Ok(Some(DetectedVersion {
-                    spec,
-                    source: VersionSource::SdkmanRc(sdkmanrc),
-                }));
-            }
+        if sdkmanrc.exists()
+            && let Some(spec) = parse_sdkmanrc(&sdkmanrc)?
+        {
+            return Ok(Some(DetectedVersion {
+                spec,
+                source: VersionSource::SdkmanRc(sdkmanrc),
+            }));
         }
 
         // Move to parent directory

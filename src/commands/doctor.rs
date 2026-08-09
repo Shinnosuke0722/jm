@@ -203,7 +203,7 @@ fn check_installed_jdks(dirs: &StorageDirs) -> Check {
                 name: "Installed JDKs integrity",
                 passed: true,
                 detail: "No registry".to_string(),
-            }
+            };
         }
     };
 
@@ -245,10 +245,10 @@ async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
     let mut builder = reqwest::Client::builder()
         .tls_backend_rustls()
         .timeout(std::time::Duration::from_secs(5));
-    if let Some(ref proxy_url) = config.api.proxy {
-        if let Ok(proxy) = reqwest::Proxy::all(proxy_url) {
-            builder = builder.proxy(proxy);
-        }
+    if let Some(ref proxy_url) = config.api.proxy
+        && let Ok(proxy) = reqwest::Proxy::all(proxy_url)
+    {
+        builder = builder.proxy(proxy);
     }
     let client = builder.build();
 
@@ -259,7 +259,7 @@ async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
                 name: "API connectivity (Foojay Disco)",
                 passed: false,
                 detail: format!("Failed to create HTTP client: {}", e),
-            }
+            };
         }
     };
 

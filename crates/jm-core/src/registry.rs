@@ -128,10 +128,10 @@ impl Registry {
         self.installations
             .iter()
             .filter(|inst| {
-                if let Some(dist) = distribution {
-                    if &inst.distribution != dist {
-                        return false;
-                    }
+                if let Some(dist) = distribution
+                    && &inst.distribution != dist
+                {
+                    return false;
                 }
                 inst.java_version.matches(version)
             })

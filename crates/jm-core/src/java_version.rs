@@ -112,20 +112,20 @@ impl JavaVersion {
         if self.major != spec.major {
             return false;
         }
-        if let Some(minor) = spec.minor {
-            if self.minor != Some(minor) {
-                return false;
-            }
+        if let Some(minor) = spec.minor
+            && self.minor != Some(minor)
+        {
+            return false;
         }
-        if let Some(patch) = spec.patch {
-            if self.patch != Some(patch) {
-                return false;
-            }
+        if let Some(patch) = spec.patch
+            && self.patch != Some(patch)
+        {
+            return false;
         }
-        if let Some(ref build) = spec.build {
-            if self.build.as_ref() != Some(build) {
-                return false;
-            }
+        if let Some(ref build) = spec.build
+            && self.build.as_ref() != Some(build)
+        {
+            return false;
         }
         true
     }

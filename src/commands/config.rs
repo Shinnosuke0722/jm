@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use jm_core::config::Config;
 use jm_core::storage::StorageDirs;
 
