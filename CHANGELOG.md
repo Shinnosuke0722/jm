@@ -7,6 +7,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-08-09
+
 ### Changed
 
 - Pinned development, CI, release, and source builds to Rust 1.97.1 and

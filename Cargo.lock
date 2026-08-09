@@ -1198,7 +1198,7 @@ checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "jm"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "anyhow",
  "assert_cmd",
@@ -1227,7 +1227,7 @@ dependencies = [
 
 [[package]]
 name = "jm-api"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "async-trait",
  "chrono",
@@ -1244,7 +1244,7 @@ dependencies = [
 
 [[package]]
 name = "jm-core"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "chrono",
  "dirs",
@@ -1257,7 +1257,7 @@ dependencies = [
 
 [[package]]
 name = "jm-install"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "console",
  "flate2",
@@ -1279,7 +1279,7 @@ dependencies = [
 
 [[package]]
 name = "jm-shell"
-version = "1.0.1"
+version = "1.0.2"
 dependencies = [
  "jm-core",
  "thiserror",
