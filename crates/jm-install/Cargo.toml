@@ -19,8 +19,12 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 tar = "0.4"
 flate2 = "1"
-zip = "2"
-indicatif = "0.17"
+# JDK ZIP archives use standard Deflate compression. Keep the reader focused
+# on that format instead of enabling every optional ZIP codec.
+zip = { version = "2", default-features = false, features = ["deflate"] }
+# 0.18.5 raises its MSRV to Rust 1.85; 0.18.4 is the latest release that
+# supports the workspace's declared Rust 1.82 baseline.
+indicatif = "=0.18.4"
 console = "0.15"
 tempfile = "3"
 futures-util = "0.3"

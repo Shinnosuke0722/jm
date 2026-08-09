@@ -22,6 +22,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   installation, project switching, and the supported `.sdkmanrc` Java entry.
 - Modernized CI and release actions, locked dependency resolution, and added an
   explicit Rust 1.82 MSRV check.
+- Limited ZIP extraction to the Stored and Deflate methods used by supported
+  release archives, reducing optional dependency and security-audit surface.
 - PowerShell auto-switching now updates `JAVA_HOME` and `PATH` natively, while
   Windows uses an NTFS junction for the active JDK without requiring Developer
   Mode or administrator privileges.
@@ -39,6 +41,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   matching Java version, including numeric build components.
 - Made release installers fail when a fetched checksum list omits the selected
   artifact instead of silently continuing without verification.
+- Updated audited transitive dependencies while preserving the Rust 1.82 MSRV.
 
 ## [1.0.0] - 2026-04-05
 

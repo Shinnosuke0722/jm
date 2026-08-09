@@ -29,7 +29,6 @@ anyhow = "1"
 console = "0.15"
 # comfy-table 7.2 switched to Rust 2024 edition; keep the declared Rust 1.82 MSRV.
 comfy-table = "~7.1"
-indicatif = "0.17"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
@@ -39,7 +38,9 @@ tempfile = "3"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip"] }
 tar = "0.4"
 flate2 = "1"
-zip = "2"
+# Release archives use standard Deflate compression. Avoid unrelated ZIP
+# codecs and timestamp parsing that increase the dependency and audit surface.
+zip = { version = "2", default-features = false, features = ["deflate"] }
 toml = "0.8"
 
 [dev-dependencies]
