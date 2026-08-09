@@ -1,10 +1,12 @@
 use anyhow::{bail, Result};
 use console::style;
 use serde::Deserialize;
+use std::io::Read;
 
 use crate::output;
 
 const GITHUB_REPO: &str = "Shinnosuke0722/jm";
+const MAX_SELF_UPDATE_BINARY_SIZE: u64 = 128 * 1024 * 1024;
 
 #[derive(Debug, Deserialize)]
 struct GitHubRelease {
@@ -139,36 +141,99 @@ fn get_platform_asset_name() -> Result<String> {
 
 fn extract_binary_from_archive(data: &[u8], asset_name: &str) -> Result<Vec<u8>> {
     let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+    let expected_path = std::path::Path::new(binary_name);
 
     if asset_name.ends_with(".tar.gz") {
         let decoder = flate2::read::GzDecoder::new(data);
         let mut archive = tar::Archive::new(decoder);
+        let mut binary = None;
         for entry in archive.entries()? {
             let mut entry = entry?;
             let path = entry.path()?.into_owned();
-            if path.file_name().is_some_and(|n| n == binary_name) {
-                let mut buf = Vec::new();
-                std::io::Read::read_to_end(&mut entry, &mut buf)?;
-                return Ok(buf);
+            if path == expected_path {
+                if !entry.header().entry_type().is_file() {
+                    bail!("Archive entry '{}' is not a regular file", binary_name);
+                }
+                if binary.is_some() {
+                    bail!("Archive contains multiple '{}' entries", binary_name);
+                }
+                let size = entry.size();
+                binary = Some(read_update_binary(&mut entry, size, binary_name)?);
             }
         }
-        bail!("Binary '{}' not found in archive", binary_name);
+        binary.ok_or_else(|| anyhow::anyhow!("Binary '{}' not found in archive", binary_name))
     } else if asset_name.ends_with(".zip") {
         let reader = std::io::Cursor::new(data);
         let mut zip = zip::ZipArchive::new(reader)?;
+        let mut binary = None;
         for i in 0..zip.len() {
             let mut file = zip.by_index(i)?;
-            let name = file.name().to_string();
-            if name.ends_with(binary_name) {
-                let mut buf = Vec::new();
-                std::io::Read::read_to_end(&mut file, &mut buf)?;
-                return Ok(buf);
+            if file.name_raw() == binary_name.as_bytes() {
+                if file.enclosed_name().as_deref() != Some(expected_path) {
+                    bail!("Archive entry '{}' has an unsafe path", binary_name);
+                }
+                if !file.is_file() || file.encrypted() {
+                    bail!("Archive entry '{}' is not a regular file", binary_name);
+                }
+                if !matches!(
+                    file.compression(),
+                    zip::CompressionMethod::Stored | zip::CompressionMethod::Deflated
+                ) {
+                    bail!(
+                        "Archive entry '{}' uses unsupported compression",
+                        binary_name
+                    );
+                }
+                if binary.is_some() {
+                    bail!("Archive contains multiple '{}' entries", binary_name);
+                }
+                let size = file.size();
+                binary = Some(read_update_binary(&mut file, size, binary_name)?);
             }
         }
-        bail!("Binary '{}' not found in archive", binary_name);
+        binary.ok_or_else(|| anyhow::anyhow!("Binary '{}' not found in archive", binary_name))
     } else {
         bail!("Unknown archive format: {}", asset_name);
     }
+}
+
+fn read_update_binary<R: Read>(
+    reader: &mut R,
+    declared_size: u64,
+    binary_name: &str,
+) -> Result<Vec<u8>> {
+    if declared_size == 0 {
+        bail!("Archive entry '{}' is empty", binary_name);
+    }
+    if declared_size > MAX_SELF_UPDATE_BINARY_SIZE {
+        bail!(
+            "Archive entry '{}' is too large: {} bytes (limit: {})",
+            binary_name,
+            declared_size,
+            MAX_SELF_UPDATE_BINARY_SIZE
+        );
+    }
+
+    let capacity = usize::try_from(declared_size)
+        .map_err(|_| anyhow::anyhow!("Archive entry '{}' is too large", binary_name))?;
+    let mut contents = Vec::with_capacity(capacity);
+    reader
+        .take(MAX_SELF_UPDATE_BINARY_SIZE + 1)
+        .read_to_end(&mut contents)?;
+
+    if contents.len() as u64 > MAX_SELF_UPDATE_BINARY_SIZE {
+        bail!("Archive entry '{}' exceeds the size limit", binary_name);
+    }
+    if contents.len() as u64 != declared_size {
+        bail!(
+            "Archive entry '{}' size mismatch: expected {}, read {}",
+            binary_name,
+            declared_size,
+            contents.len()
+        );
+    }
+
+    Ok(contents)
 }
 
 fn replace_binary(current_exe: &std::path::Path, new_bytes: &[u8]) -> Result<()> {
@@ -226,6 +291,43 @@ fn is_newer(new: &str, current: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
+
+    fn zip_archive_with_file(path: &str, contents: &[u8]) -> Vec<u8> {
+        let cursor = std::io::Cursor::new(Vec::new());
+        let mut archive = zip::ZipWriter::new(cursor);
+        archive
+            .start_file(path, zip::write::SimpleFileOptions::default())
+            .unwrap();
+        archive.write_all(contents).unwrap();
+        archive.finish().unwrap().into_inner()
+    }
+
+    fn tar_gz_archive_with_file(path: &str, contents: &[u8]) -> Vec<u8> {
+        let encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+        let mut archive = tar::Builder::new(encoder);
+        let mut header = tar::Header::new_gnu();
+        header.set_mode(0o755);
+        header.set_size(contents.len() as u64);
+        header.set_cksum();
+        archive
+            .append_data(&mut header, path, std::io::Cursor::new(contents))
+            .unwrap();
+        archive.into_inner().unwrap().finish().unwrap()
+    }
+
+    fn tar_gz_archive_with_symlink(path: &str) -> Vec<u8> {
+        let encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
+        let mut archive = tar::Builder::new(encoder);
+        let mut header = tar::Header::new_gnu();
+        header.set_mode(0o755);
+        header.set_size(0);
+        header.set_entry_type(tar::EntryType::Symlink);
+        archive
+            .append_link(&mut header, path, "other-binary")
+            .unwrap();
+        archive.into_inner().unwrap().finish().unwrap()
+    }
 
     #[test]
     fn version_comparison() {
@@ -241,5 +343,75 @@ mod tests {
         let name = get_platform_asset_name().unwrap();
         assert!(name.starts_with("jm-"));
         assert!(name.contains("x86_64") || name.contains("aarch64"));
+    }
+
+    #[test]
+    fn extracts_exact_root_binary_from_zip() {
+        let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+        let archive = zip_archive_with_file(binary_name, b"valid binary");
+
+        let extracted = extract_binary_from_archive(&archive, "jm-windows-x86_64.zip").unwrap();
+
+        assert_eq!(extracted, b"valid binary");
+    }
+
+    #[test]
+    fn rejects_zip_entry_that_only_ends_with_binary_name() {
+        let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+        let archive = zip_archive_with_file(&format!("evil{binary_name}"), b"wrong binary");
+
+        let error = extract_binary_from_archive(&archive, "jm-windows-x86_64.zip").unwrap_err();
+
+        assert!(error.to_string().contains("not found"));
+    }
+
+    #[test]
+    fn rejects_zip_entry_that_normalizes_to_binary_name() {
+        let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+        let archive =
+            zip_archive_with_file(&format!("directory/../{binary_name}"), b"wrong binary");
+
+        let error = extract_binary_from_archive(&archive, "jm-windows-x86_64.zip").unwrap_err();
+
+        assert!(error.to_string().contains("not found"));
+    }
+
+    #[test]
+    fn rejects_empty_update_binary() {
+        let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+        let archive = zip_archive_with_file(binary_name, b"");
+
+        let error = extract_binary_from_archive(&archive, "jm-windows-x86_64.zip").unwrap_err();
+
+        assert!(error.to_string().contains("is empty"));
+    }
+
+    #[test]
+    fn extracts_exact_root_binary_from_tar_gz() {
+        let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+        let archive = tar_gz_archive_with_file(binary_name, b"valid binary");
+
+        let extracted = extract_binary_from_archive(&archive, "jm-linux-x86_64.tar.gz").unwrap();
+
+        assert_eq!(extracted, b"valid binary");
+    }
+
+    #[test]
+    fn rejects_tar_symlink_as_update_binary() {
+        let binary_name = if cfg!(windows) { "jm.exe" } else { "jm" };
+        let archive = tar_gz_archive_with_symlink(binary_name);
+
+        let error = extract_binary_from_archive(&archive, "jm-linux-x86_64.tar.gz").unwrap_err();
+
+        assert!(error.to_string().contains("not a regular file"));
+    }
+
+    #[test]
+    fn rejects_declared_update_binary_over_size_limit() {
+        let mut reader = std::io::empty();
+        let error =
+            read_update_binary(&mut reader, MAX_SELF_UPDATE_BINARY_SIZE + 1, "jm").unwrap_err();
+
+        assert!(error.to_string().contains("is too large"));
     }
 }
