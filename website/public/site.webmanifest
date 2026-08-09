@@ -1,0 +1,15 @@
+{
+  "name": "jm documentation",
+  "short_name": "jm docs",
+  "start_url": "/jm/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#111c2d",
+  "icons": [
+    {
+      "src": "/jm/jm-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
