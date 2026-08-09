@@ -69,7 +69,6 @@ if (-not (Get-Variable -Name __jm_original_prompt -ErrorAction SilentlyContinue)
 # Run once on init
 __jm_prompt_hook
 "#,
-        data_dir = data_dir,
     )
 }
 

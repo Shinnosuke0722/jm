@@ -124,7 +124,7 @@ pub async fn download_jdk_with_proxy(
     if let Some(proxy_url) = proxy {
         builder = builder.proxy(
             reqwest::Proxy::all(proxy_url)
-                .map_err(|e| JmError::DownloadFailed(format!("invalid proxy URL: {}", e)))?,
+                .map_err(|e| JmError::DownloadFailed(format!("invalid proxy URL: {e}")))?,
         );
     }
 
@@ -149,10 +149,11 @@ pub async fn download_jdk_with_proxy(
 
     let pb = ProgressBar::new(total_size);
     pb.set_style(
-        ProgressStyle::default_bar()
-            .template("{spinner:.green} [{bar:40.cyan/blue}] {bytes}/{total_bytes} ({eta})")
-            .unwrap()
-            .progress_chars("#>-"),
+        ProgressStyle::with_template(
+            "{spinner:.green} [{bar:40.cyan/blue}] {bytes}/{total_bytes} ({eta})",
+        )
+        .unwrap()
+        .progress_chars("#>-"),
     );
     pb.set_message(info.filename.clone());
 

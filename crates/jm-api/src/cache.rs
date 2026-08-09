@@ -59,7 +59,7 @@ impl ApiCache {
                 }
             })
             .collect();
-        self.cache_dir.join(format!("{}.json", safe_key))
+        self.cache_dir.join(format!("{safe_key}.json"))
     }
 }
 

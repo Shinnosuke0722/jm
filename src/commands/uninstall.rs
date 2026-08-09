@@ -21,14 +21,13 @@ pub fn run(version: &str, force: bool) -> Result<()> {
         let matches = registry.find_matching(spec.distribution.as_ref(), &spec.version);
         match matches.len() {
             0 => {
-                output::print_error(&format!("No installed JDK matches '{}'", version));
+                output::print_error(&format!("No installed JDK matches '{version}'"));
                 return Ok(());
             }
             1 => matches[0].id.clone(),
             _ => {
                 output::print_error(&format!(
-                    "Multiple JDKs match '{}'. Be more specific:",
-                    version
+                    "Multiple JDKs match '{version}'. Be more specific:"
                 ));
                 for m in matches {
                     eprintln!("  - {}", m.id);

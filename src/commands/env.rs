@@ -15,9 +15,9 @@ pub fn run(detect: bool, shell: bool, java_home_only: bool) -> Result<()> {
         link::read_current_link(&dirs.current_link())?
     };
 
-    let java_home = match java_home {
-        Some(p) => p,
-        None => return Ok(()), // Silently exit if no JDK found (for shell hooks)
+    let Some(java_home) = java_home else {
+        // Silently exit if no JDK was found (for shell hooks).
+        return Ok(());
     };
 
     if java_home_only {

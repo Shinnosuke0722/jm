@@ -83,7 +83,7 @@ impl AdoptiumClient {
         if let Some(proxy_url) = proxy {
             builder = builder.proxy(
                 reqwest::Proxy::all(proxy_url)
-                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {}", e)))?,
+                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {e}")))?,
             );
         }
 

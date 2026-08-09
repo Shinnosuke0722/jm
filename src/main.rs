@@ -79,7 +79,7 @@ async fn main() {
     };
 
     if let Err(e) = result {
-        output::print_error(&format!("{:#}", e));
+        output::print_error(&format!("{e:#}"));
         std::process::exit(1);
     }
 }

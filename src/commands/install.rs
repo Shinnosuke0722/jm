@@ -83,7 +83,7 @@ pub async fn run(
         selection = ("Adoptium", package, Box::new(adoptium));
     } else {
         match disco_result {
-            Ok(_) => bail!("No matching JDK package found for {}", spec),
+            Ok(_) => bail!("No matching JDK package found for {spec}"),
             Err(error) => return Err(error.into()),
         }
     }
@@ -106,7 +106,7 @@ pub async fn run(
     // `jm install` may have won the race after use/default first checked the
     // registry, so this path must still honor the requested selection flags.
     if let Some(existing) = Registry::load(&dirs)?.find_by_id(&install_id).cloned() {
-        output::print_warning(&format!("{} is already installed", install_id));
+        output::print_warning(&format!("{install_id} is already installed"));
         apply_requested_selection(
             &dirs,
             &existing.id,
@@ -245,16 +245,14 @@ fn build_install_destination(
     distribution.validate()?;
     if !download::is_safe_filename_component(java_version) {
         bail!(
-            "unsafe Java version from provider {:?}: expected one ordinary filename component",
-            java_version
+            "unsafe Java version from provider {java_version:?}: expected one ordinary filename component"
         );
     }
 
     let install_id = format!("{}-{}", distribution.api_parameter(), java_version);
     if !download::is_safe_filename_component(&install_id) {
         bail!(
-            "unsafe installation identifier {:?}: expected one ordinary filename component",
-            install_id
+            "unsafe installation identifier {install_id:?}: expected one ordinary filename component"
         );
     }
 
@@ -273,14 +271,14 @@ fn apply_requested_selection(
         link::set_current_link(&dirs.current_link(), install_path)?;
     }
     if set_local {
-        std::fs::write(local_version_path, format!("{}\n", install_id))?;
+        std::fs::write(local_version_path, format!("{install_id}\n"))?;
     }
     Ok(())
 }
 
 fn print_selection_success(install_id: &str, set_default: bool, set_local: bool) {
     if set_default {
-        output::print_success(&format!("Set {} as global default", install_id));
+        output::print_success(&format!("Set {install_id} as global default"));
     }
     if set_local {
         output::print_success("Created .java-version file");
@@ -466,7 +464,7 @@ mod tests {
         );
         assert_eq!(
             std::fs::read_to_string(local_version_path).unwrap(),
-            format!("{}\n", install_id)
+            format!("{install_id}\n")
         );
     }
 }

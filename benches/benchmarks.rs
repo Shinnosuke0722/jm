@@ -75,7 +75,7 @@ fn bench_registry_operations(c: &mut Criterion) {
         let major = 11 + (i % 4) * 4; // 11, 15, 19, 23
         let dists = ["temurin", "corretto", "zulu", "liberica", "microsoft"];
         let dist_name = dists[i % dists.len()];
-        let id = format!("{}-{}.0.{}", dist_name, major, i);
+        let id = format!("{dist_name}-{major}.0.{i}");
         reg.add(Installation {
             id,
             distribution: Distribution::parse(dist_name),
@@ -85,9 +85,9 @@ fn bench_registry_operations(c: &mut Criterion) {
                 patch: Some(i as u32),
                 build: None,
             },
-            full_version: format!("{}.0.{}", major, i),
+            full_version: format!("{major}.0.{i}"),
             major_version: major as u32,
-            path: PathBuf::from(format!("/tmp/jdks/jdk-{}", i)),
+            path: PathBuf::from(format!("/tmp/jdks/jdk-{i}")),
             installed_at: chrono::Utc::now(),
             is_lts: major == 11 || major == 21,
         });

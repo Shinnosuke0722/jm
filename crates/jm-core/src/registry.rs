@@ -161,9 +161,9 @@ mod tests {
                 patch: Some(2),
                 build: None,
             },
-            full_version: format!("{}.0.2", major),
+            full_version: format!("{major}.0.2"),
             major_version: major,
-            path: PathBuf::from(format!("/tmp/jdks/{}", id)),
+            path: PathBuf::from(format!("/tmp/jdks/{id}")),
             installed_at: Utc::now(),
             is_lts: major == 21 || major == 17,
         }

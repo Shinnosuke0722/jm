@@ -20,8 +20,7 @@ pub async fn run(version: &str, global: bool, install_if_missing: bool) -> Resul
                 return super::install::run(version, None, global, !global, false).await;
             }
             output::print_error(&format!(
-                "No installed JDK matches '{}'. Run 'jm install {}' first.",
-                version, version
+                "No installed JDK matches '{version}'. Run 'jm install {version}' first."
             ));
             return Ok(());
         }

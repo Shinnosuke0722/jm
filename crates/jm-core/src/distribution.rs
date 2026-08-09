@@ -76,8 +76,7 @@ impl Distribution {
                     .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-'))
         {
             return Err(crate::error::JmError::UnknownDistribution(format!(
-                "invalid distribution name '{}': only [a-zA-Z0-9_-] allowed",
-                name
+                "invalid distribution name '{name}': only [a-zA-Z0-9_-] allowed"
             )));
         }
         Ok(())

@@ -105,7 +105,7 @@ fn parse_sdkman_version(s: &str) -> Result<VersionSpec> {
         // Check if suffix looks like a distribution abbreviation (not a number)
         if !suffix.chars().next().is_none_or(|c| c.is_ascii_digit()) {
             let dist_str = map_sdkman_suffix(suffix);
-            let combined = format!("{}-{}", dist_str, version_part);
+            let combined = format!("{dist_str}-{version_part}");
             return VersionSpec::parse(&combined);
         }
     }

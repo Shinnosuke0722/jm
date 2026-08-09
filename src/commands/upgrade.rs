@@ -61,10 +61,7 @@ pub async fn run(check_only: bool) -> Result<()> {
         .iter()
         .find(|a| a.name == asset_name)
         .ok_or_else(|| {
-            anyhow::anyhow!(
-                "No release asset found for this platform (expected: {})",
-                asset_name
-            )
+            anyhow::anyhow!("No release asset found for this platform (expected: {asset_name})")
         })?;
 
     output::print_info(&format!(
@@ -76,7 +73,7 @@ pub async fn run(check_only: bool) -> Result<()> {
     // Download to temp file
     let client = reqwest::Client::builder()
         .tls_backend_rustls()
-        .user_agent(format!("jm/{}", current_version))
+        .user_agent(format!("jm/{current_version}"))
         .build()?;
 
     let response = client.get(&asset.browser_download_url).send().await?;
@@ -101,10 +98,7 @@ pub async fn run(check_only: bool) -> Result<()> {
 }
 
 async fn fetch_latest_release() -> Result<GitHubRelease> {
-    let url = format!(
-        "https://api.github.com/repos/{}/releases/latest",
-        GITHUB_REPO
-    );
+    let url = format!("https://api.github.com/repos/{GITHUB_REPO}/releases/latest");
     let client = reqwest::Client::builder()
         .tls_backend_rustls()
         .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
@@ -128,16 +122,16 @@ fn get_platform_asset_name() -> Result<String> {
         "linux" => ("linux", "tar.gz"),
         "macos" => ("macos", "tar.gz"),
         "windows" => ("windows", "zip"),
-        other => bail!("Unsupported OS for self-update: {}", other),
+        other => bail!("Unsupported OS for self-update: {other}"),
     };
 
     let arch = match std::env::consts::ARCH {
         "x86_64" => "x86_64",
         "aarch64" => "aarch64",
-        other => bail!("Unsupported arch for self-update: {}", other),
+        other => bail!("Unsupported arch for self-update: {other}"),
     };
 
-    Ok(format!("jm-{}-{}.{}", os, arch, ext))
+    Ok(format!("jm-{os}-{arch}.{ext}"))
 }
 
 fn extract_binary_from_archive(data: &[u8], asset_name: &str) -> Result<Vec<u8>> {
@@ -153,16 +147,16 @@ fn extract_binary_from_archive(data: &[u8], asset_name: &str) -> Result<Vec<u8>>
             let path = entry.path()?.into_owned();
             if path == expected_path {
                 if !entry.header().entry_type().is_file() {
-                    bail!("Archive entry '{}' is not a regular file", binary_name);
+                    bail!("Archive entry '{binary_name}' is not a regular file");
                 }
                 if binary.is_some() {
-                    bail!("Archive contains multiple '{}' entries", binary_name);
+                    bail!("Archive contains multiple '{binary_name}' entries");
                 }
                 let size = entry.size();
                 binary = Some(read_update_binary(&mut entry, size, binary_name)?);
             }
         }
-        binary.ok_or_else(|| anyhow::anyhow!("Binary '{}' not found in archive", binary_name))
+        binary.ok_or_else(|| anyhow::anyhow!("Binary '{binary_name}' not found in archive"))
     } else if asset_name.ends_with(".zip") {
         let reader = std::io::Cursor::new(data);
         let mut zip = zip::ZipArchive::new(reader)?;
@@ -171,30 +165,27 @@ fn extract_binary_from_archive(data: &[u8], asset_name: &str) -> Result<Vec<u8>>
             let mut file = zip.by_index(i)?;
             if file.name_raw() == binary_name.as_bytes() {
                 if file.enclosed_name().as_deref() != Some(expected_path) {
-                    bail!("Archive entry '{}' has an unsafe path", binary_name);
+                    bail!("Archive entry '{binary_name}' has an unsafe path");
                 }
                 if !file.is_file() || file.encrypted() {
-                    bail!("Archive entry '{}' is not a regular file", binary_name);
+                    bail!("Archive entry '{binary_name}' is not a regular file");
                 }
                 if !matches!(
                     file.compression(),
                     zip::CompressionMethod::Stored | zip::CompressionMethod::Deflated
                 ) {
-                    bail!(
-                        "Archive entry '{}' uses unsupported compression",
-                        binary_name
-                    );
+                    bail!("Archive entry '{binary_name}' uses unsupported compression");
                 }
                 if binary.is_some() {
-                    bail!("Archive contains multiple '{}' entries", binary_name);
+                    bail!("Archive contains multiple '{binary_name}' entries");
                 }
                 let size = file.size();
                 binary = Some(read_update_binary(&mut file, size, binary_name)?);
             }
         }
-        binary.ok_or_else(|| anyhow::anyhow!("Binary '{}' not found in archive", binary_name))
+        binary.ok_or_else(|| anyhow::anyhow!("Binary '{binary_name}' not found in archive"))
     } else {
-        bail!("Unknown archive format: {}", asset_name);
+        bail!("Unknown archive format: {asset_name}");
     }
 }
 
@@ -204,26 +195,23 @@ fn read_update_binary<R: Read>(
     binary_name: &str,
 ) -> Result<Vec<u8>> {
     if declared_size == 0 {
-        bail!("Archive entry '{}' is empty", binary_name);
+        bail!("Archive entry '{binary_name}' is empty");
     }
     if declared_size > MAX_SELF_UPDATE_BINARY_SIZE {
         bail!(
-            "Archive entry '{}' is too large: {} bytes (limit: {})",
-            binary_name,
-            declared_size,
-            MAX_SELF_UPDATE_BINARY_SIZE
+            "Archive entry '{binary_name}' is too large: {declared_size} bytes (limit: {MAX_SELF_UPDATE_BINARY_SIZE})"
         );
     }
 
     let capacity = usize::try_from(declared_size)
-        .map_err(|_| anyhow::anyhow!("Archive entry '{}' is too large", binary_name))?;
+        .map_err(|_| anyhow::anyhow!("Archive entry '{binary_name}' is too large"))?;
     let mut contents = Vec::with_capacity(capacity);
     reader
         .take(MAX_SELF_UPDATE_BINARY_SIZE + 1)
         .read_to_end(&mut contents)?;
 
     if contents.len() as u64 > MAX_SELF_UPDATE_BINARY_SIZE {
-        bail!("Archive entry '{}' exceeds the size limit", binary_name);
+        bail!("Archive entry '{binary_name}' exceeds the size limit");
     }
     if contents.len() as u64 != declared_size {
         bail!(
