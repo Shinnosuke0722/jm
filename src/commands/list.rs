@@ -101,6 +101,7 @@ async fn list_remote(
         // List packages for a specific major version
         let query = PackageQuery {
             major_version: Some(major),
+            version_requirement: None,
             distribution: distribution.map(|value| value.api_parameter().to_string()),
             operating_system: Some(platform.os.api_parameter().to_string()),
             architecture: Some(platform.arch.api_parameter().to_string()),

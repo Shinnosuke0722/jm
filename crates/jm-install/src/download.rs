@@ -7,14 +7,21 @@ use tokio::io::AsyncWriteExt;
 /// Return whether `value` is a single, ordinary filename component on every
 /// supported platform.
 ///
-/// Both separator styles are rejected explicitly so that a filename accepted
-/// on Unix cannot become a path on Windows later. Colons are rejected as well
-/// to exclude Windows drive prefixes and alternate data streams.
+/// Both separator styles and all other Win32-forbidden filename characters are
+/// rejected explicitly so that a filename accepted on Unix is also safe on
+/// Windows. Windows device names and trailing spaces or periods are rejected as
+/// well, regardless of the host platform.
 pub fn is_safe_filename_component(value: &str) -> bool {
     if value.is_empty()
-        || value
-            .chars()
-            .any(|c| matches!(c, '/' | '\\' | ':' | '\0') || c.is_control())
+        || value.ends_with(' ')
+        || value.ends_with('.')
+        || value.chars().any(|c| {
+            matches!(
+                c,
+                '/' | '\\' | ':' | '<' | '>' | '"' | '|' | '?' | '*' | '\0'
+            ) || c.is_control()
+        })
+        || is_windows_reserved_device_name(value)
     {
         return false;
     }
@@ -24,6 +31,29 @@ pub fn is_safe_filename_component(value: &str) -> bool {
         (components.next(), components.next()),
         (Some(Component::Normal(_)), None)
     )
+}
+
+fn is_windows_reserved_device_name(value: &str) -> bool {
+    // Win32 reserves these basenames even when an extension is present, for
+    // example `NUL.zip` and `COM1.tar.gz`.
+    let basename = value.split('.').next().unwrap_or(value);
+
+    if ["CON", "PRN", "AUX", "NUL"]
+        .iter()
+        .any(|reserved| basename.eq_ignore_ascii_case(reserved))
+    {
+        return true;
+    }
+
+    let (Some(prefix), Some(number)) = (basename.get(..3), basename.get(3..)) else {
+        return false;
+    };
+
+    (prefix.eq_ignore_ascii_case("COM") || prefix.eq_ignore_ascii_case("LPT"))
+        && matches!(
+            number,
+            "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "¹" | "²" | "³"
+        )
 }
 
 /// Guard that cleans up the .part file if dropped before `defuse()` is called.
@@ -162,6 +192,13 @@ mod tests {
             "OpenJDK21U-jdk_x64_windows_hotspot_21.0.8_9.zip",
             "OpenJDK21U-jdk_x64_linux_hotspot_21.0.8_9.tar.gz",
             "zulu21.44.17-ca-jdk21.0.8-linux_x64.tar.gz",
+            "console.zip",
+            "null.zip",
+            "COM0.zip",
+            "COM10.zip",
+            "LPT0.zip",
+            "LPT10.zip",
+            ".jdk.zip",
         ] {
             assert!(is_safe_filename_component(filename), "{filename}");
         }
@@ -183,8 +220,39 @@ mod tests {
             "C:jdk.zip",
             "\\\\server\\share\\jdk.zip",
             "jdk.zip:stream",
+            "jdk<old>.zip",
+            "jdk>new.zip",
+            "jdk\"quoted.zip",
+            "jdk|pipe.zip",
+            "jdk?.zip",
+            "jdk*.zip",
+            "jdk.zip ",
+            "jdk.zip.",
             "jdk\n.zip",
             "jdk\0.zip",
+        ] {
+            assert!(!is_safe_filename_component(filename), "{filename:?}");
+        }
+    }
+
+    #[test]
+    fn rejects_windows_reserved_device_basenames() {
+        for filename in [
+            "CON",
+            "con.zip",
+            "PrN.tar.gz",
+            "AUX.zip",
+            "nul.zip",
+            "COM1.zip",
+            "com9.tar.gz",
+            "LPT1.zip",
+            "lPt9.tar.gz",
+            "COM¹.zip",
+            "com².tar.gz",
+            "COM³.zip",
+            "LPT¹.zip",
+            "lpt².tar.gz",
+            "LPT³.zip",
         ] {
             assert!(!is_safe_filename_component(filename), "{filename:?}");
         }

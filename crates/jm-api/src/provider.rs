@@ -5,6 +5,10 @@ use jm_core::error::JmError;
 #[derive(Debug, Clone, Default)]
 pub struct PackageQuery {
     pub major_version: Option<u32>,
+    /// Full or partial Java version requested by the caller (for example,
+    /// `21.0.2+13`). Providers that support historical lookups can use this
+    /// to avoid restricting a specific-version request to the latest release.
+    pub version_requirement: Option<String>,
     pub distribution: Option<String>,
     pub operating_system: Option<String>,
     pub architecture: Option<String>,

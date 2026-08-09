@@ -48,6 +48,7 @@ pub async fn run(
     // Build query
     let query = PackageQuery {
         major_version: Some(spec.version.major),
+        version_requirement: specific_version.then(|| spec.version.to_string()),
         distribution: Some(dist.api_parameter().to_string()),
         operating_system: Some(platform.os.api_parameter().to_string()),
         architecture: Some(platform.arch.api_parameter().to_string()),

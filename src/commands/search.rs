@@ -50,6 +50,7 @@ pub async fn run(
 
     let pkg_query = PackageQuery {
         major_version,
+        version_requirement: None,
         distribution: dist_filter,
         operating_system: Some(
             os_override
