@@ -73,6 +73,7 @@ pub async fn run(check_only: bool) -> Result<()> {
 
     // Download to temp file
     let client = reqwest::Client::builder()
+        .tls_backend_rustls()
         .user_agent(format!("jm/{}", current_version))
         .build()?;
 
@@ -103,6 +104,7 @@ async fn fetch_latest_release() -> Result<GitHubRelease> {
         GITHUB_REPO
     );
     let client = reqwest::Client::builder()
+        .tls_backend_rustls()
         .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
         .timeout(std::time::Duration::from_secs(10))
         .build()?;

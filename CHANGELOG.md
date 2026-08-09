@@ -11,6 +11,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 - Pinned development, CI, release, and source builds to Rust 1.97.1 while
   keeping the workspace on Rust edition 2021.
+- Migrated HTTP clients to Reqwest 0.13 with an explicit Rustls backend and
+  platform-native certificate verification.
 
 ## [1.0.1] - 2026-08-09
 

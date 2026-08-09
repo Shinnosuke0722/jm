@@ -76,6 +76,7 @@ impl AdoptiumClient {
 
     fn with_base_url(base_url: String, proxy: Option<&str>) -> Result<Self, JmError> {
         let mut builder = Client::builder()
+            .tls_backend_rustls()
             .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30));
 
