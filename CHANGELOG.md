@@ -7,6 +7,11 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Pinned development, CI, release, and source builds to Rust 1.97.1 while
+  keeping the workspace on Rust edition 2021.
+
 ## [1.0.1] - 2026-08-09
 
 ### Added

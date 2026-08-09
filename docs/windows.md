@@ -28,7 +28,7 @@ download and inspect [`install.ps1`](../install.ps1) before running it locally.
 
 ## Build from source
 
-Install Rust 1.82 or newer with the MSVC toolchain, then run:
+Install Rust 1.97.1 or newer with the MSVC toolchain, then run:
 
 ```powershell
 cargo install --git https://github.com/Shinnosuke0722/jm.git --locked

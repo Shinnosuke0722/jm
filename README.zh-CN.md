@@ -34,7 +34,7 @@ Windows 安装脚本会把 `%USERPROFILE%\.jm\bin` 加入用户 `PATH`。安装�
 
 ### 从源码安装
 
-需要 Rust 1.82 或更高版本：
+需要 Rust 1.97.1 或更高版本：
 
 ```sh
 cargo install --git https://github.com/Shinnosuke0722/jm.git --locked

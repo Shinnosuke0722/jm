@@ -2,7 +2,7 @@
 name = "jm-shell"
 version = "1.0.1"
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.97.1"
 description = "Shell integration for the jm JDK and Java version manager"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"

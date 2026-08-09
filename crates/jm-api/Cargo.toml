@@ -2,7 +2,7 @@
 name = "jm-api"
 version = "1.0.1"
 edition = "2021"
-rust-version = "1.82"
+rust-version = "1.97.1"
 description = "JDK discovery API clients for the jm Java version manager"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"
