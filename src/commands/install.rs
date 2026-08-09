@@ -37,6 +37,7 @@ pub async fn run(
         &config.global.preferred_distribution,
     )?;
     let dist = spec.distribution.as_ref().unwrap();
+    let specific_version = has_specific_version(&spec.version);
 
     output::print_info(&format!(
         "Searching for {} JDK {}...",
@@ -53,7 +54,7 @@ pub async fn run(
         archive_type: Some(platform.os.default_archive_type().to_string()),
         package_type: Some("jdk".to_string()),
         release_status: Some("ga".to_string()),
-        latest: Some("per_distribution".to_string()),
+        latest: (!specific_version).then(|| "per_distribution".to_string()),
     };
 
     // Query Disco API (primary), fallback to Adoptium on failure
@@ -61,29 +62,31 @@ pub async fn run(
     let proxy = config.api.proxy.as_deref();
     let disco = DiscoClient::with_proxy(config.api.disco_api_url.clone(), cache, proxy)?;
 
-    let (provider_name, package, provider): (&str, JdkPackage, Box<dyn JdkProvider>) =
-        match disco.query_packages(&query).await {
-            Ok(packages) if !packages.is_empty() => {
-                let pkg = packages.into_iter().next().unwrap();
-                ("Foojay Disco", pkg, Box::new(disco))
-            }
-            Ok(_) | Err(_) if config.api.fallback_enabled && dist == &Distribution::Temurin => {
-                output::print_warning("Foojay Disco unavailable, falling back to Adoptium API...");
-                let adoptium = AdoptiumClient::with_proxy(proxy)?;
-                let packages = adoptium.query_packages(&query).await?;
-                let pkg = packages
-                    .into_iter()
-                    .next()
-                    .ok_or_else(|| anyhow::anyhow!("No matching JDK found via Adoptium either"))?;
-                ("Adoptium", pkg, Box::new(adoptium))
-            }
-            Ok(_) => {
-                anyhow::bail!("No matching JDK package found for {}", spec);
-            }
-            Err(e) => {
-                return Err(e.into());
-            }
-        };
+    let disco_result = disco.query_packages(&query).await;
+    let disco_package = disco_result
+        .as_ref()
+        .ok()
+        .and_then(|packages| find_matching_package(packages, &spec.version));
+
+    let selection: (&str, JdkPackage, Box<dyn JdkProvider>);
+    if let Some(package) = disco_package {
+        selection = ("Foojay Disco", package, Box::new(disco));
+    } else if config.api.fallback_enabled && dist == &Distribution::Temurin {
+        output::print_warning(
+            "Foojay Disco unavailable or returned no matching package; falling back to Adoptium API...",
+        );
+        let adoptium = AdoptiumClient::with_proxy(proxy)?;
+        let packages = adoptium.query_packages(&query).await?;
+        let package = find_matching_package(&packages, &spec.version)
+            .ok_or_else(|| anyhow::anyhow!("No matching JDK found via Adoptium either"))?;
+        selection = ("Adoptium", package, Box::new(adoptium));
+    } else {
+        match disco_result {
+            Ok(_) => bail!("No matching JDK package found for {}", spec),
+            Err(error) => return Err(error.into()),
+        }
+    }
+    let (provider_name, package, provider) = selection;
 
     // Treat all provider-controlled path material as untrusted. Constructing
     // the destination through this helper guarantees it stays one lexical
@@ -206,6 +209,33 @@ fn resolve_distribution(
     Ok(())
 }
 
+fn has_specific_version(version: &JavaVersion) -> bool {
+    version.minor.is_some() || version.patch.is_some() || version.build.is_some()
+}
+
+fn find_matching_package(
+    packages: &[JdkPackage],
+    requested_version: &JavaVersion,
+) -> Option<JdkPackage> {
+    if !has_specific_version(requested_version) {
+        return packages
+            .iter()
+            .find(|package| package.major_version == requested_version.major)
+            .cloned();
+    }
+
+    packages
+        .iter()
+        .filter_map(|package| {
+            let version = JavaVersion::parse(&package.java_version).ok()?;
+            version
+                .matches(requested_version)
+                .then_some((package, version))
+        })
+        .max_by(|(_, left), (_, right)| left.cmp(right))
+        .map(|(package, _)| package.clone())
+}
+
 fn build_install_destination(
     jdks_dir: &Path,
     distribution: &Distribution,
@@ -285,6 +315,77 @@ fn copy_dir_recursive(src: &std::path::Path, dest: &std::path::Path) -> std::io:
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn package(java_version: &str, major_version: u32) -> JdkPackage {
+        JdkPackage {
+            id: format!("package-{java_version}"),
+            distribution: "temurin".to_string(),
+            major_version,
+            java_version: java_version.to_string(),
+            operating_system: "windows".to_string(),
+            architecture: "x64".to_string(),
+            archive_type: "zip".to_string(),
+            filename: format!("jdk-{java_version}.zip"),
+            term_of_support: "LTS".to_string(),
+            directly_downloadable: true,
+            size: 1,
+        }
+    }
+
+    #[test]
+    fn recognizes_version_requirements_that_need_full_package_results() {
+        assert!(!has_specific_version(&JavaVersion::parse("21").unwrap()));
+        assert!(has_specific_version(&JavaVersion::parse("21.0").unwrap()));
+        assert!(has_specific_version(&JavaVersion::parse("21.0.2").unwrap()));
+        assert!(has_specific_version(&JavaVersion::parse("21+13").unwrap()));
+    }
+
+    #[test]
+    fn package_selection_preserves_minor_patch_and_build_requirements() {
+        let packages = vec![
+            package("21.0.12+8", 21),
+            package("21.0.2+12", 21),
+            package("21.0.2+13", 21),
+            package("17.0.12+7", 17),
+        ];
+
+        let major = JavaVersion::parse("21").unwrap();
+        assert_eq!(
+            find_matching_package(&packages, &major)
+                .unwrap()
+                .java_version,
+            "21.0.12+8"
+        );
+
+        let minor = JavaVersion::parse("21.0").unwrap();
+        assert_eq!(
+            find_matching_package(&packages, &minor)
+                .unwrap()
+                .java_version,
+            "21.0.12+8"
+        );
+
+        let patch = JavaVersion::parse("21.0.2").unwrap();
+        assert_eq!(
+            find_matching_package(&packages, &patch)
+                .unwrap()
+                .java_version,
+            "21.0.2+13"
+        );
+
+        let build = JavaVersion::parse("21.0.2+12").unwrap();
+        assert_eq!(
+            find_matching_package(&packages, &build)
+                .unwrap()
+                .java_version,
+            "21.0.2+12"
+        );
+
+        for missing in ["21.0.3", "21.0.2+14"] {
+            let missing = JavaVersion::parse(missing).unwrap();
+            assert!(find_matching_package(&packages, &missing).is_none());
+        }
+    }
 
     #[test]
     fn validates_distribution_from_every_source() {
