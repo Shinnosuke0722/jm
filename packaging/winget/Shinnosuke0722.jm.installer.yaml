@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: Shinnosuke0722.jm
+PackageVersion: VERSION_PLACEHOLDER
+InstallerType: zip
+NestedInstallerType: portable
+Commands:
+  - jm
+ReleaseDate: RELEASE_DATE_PLACEHOLDER
+Installers:
+  - Architecture: x64
+    NestedInstallerFiles:
+      - RelativeFilePath: jm.exe
+        PortableCommandAlias: jm
+    InstallerUrl: https://github.com/Shinnosuke0722/jm/releases/download/vVERSION_PLACEHOLDER/jm-windows-x86_64.zip
+    InstallerSha256: SHA256_WINDOWS_PLACEHOLDER
+    Dependencies:
+      PackageDependencies:
+        - PackageIdentifier: Microsoft.VCRedist.2015+.x64
+ManifestType: installer
+ManifestVersion: 1.12.0

@@ -7,6 +7,19 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Added
+
+- Published an official Homebrew tap and Scoop bucket for the existing prebuilt
+  release archives.
+- Added WinGet 1.12 multi-file manifest templates and release generation, and
+  submitted the first `Shinnosuke0722.jm` manifest for upstream review.
+
+### Changed
+
+- Documented package-manager installation and upgrade commands, the Windows
+  Visual C++ runtime dependency, and why package-managed installations must not
+  use the binary self-updater.
+
 ## [1.0.2] - 2026-08-09
 
 ### Changed
@@ -84,6 +97,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Validation of custom distribution names supplied in CLI version
   specifications before path and API use.
 
-[Unreleased]: https://github.com/Shinnosuke0722/jm/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/Shinnosuke0722/jm/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/Shinnosuke0722/jm/releases/tag/v1.0.2
 [1.0.1]: https://github.com/Shinnosuke0722/jm/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Shinnosuke0722/jm/releases/tag/v1.0.0

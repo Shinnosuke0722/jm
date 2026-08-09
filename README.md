@@ -13,7 +13,41 @@ sets a global Java default, and selects a project JDK from `.java-version` or th
 
 ## Installation
 
-### Linux and macOS
+### Homebrew (macOS and Linux)
+
+```sh
+brew install Shinnosuke0722/tap/jm
+```
+
+Upgrade a Homebrew-managed installation with
+`brew upgrade Shinnosuke0722/tap/jm`, not `jm upgrade`.
+
+### Scoop (Windows x86-64)
+
+```powershell
+scoop bucket add shinnosuke0722 https://github.com/Shinnosuke0722/scoop-bucket
+scoop install shinnosuke0722/jm
+```
+
+Upgrade a Scoop-managed installation with `scoop update jm`, not `jm upgrade`.
+The manifest suggests the Microsoft Visual C++ 2015-2022 runtime for systems
+where it is not already installed.
+
+### WinGet (Windows x86-64; upstream review)
+
+The first WinGet manifest is in
+[`microsoft/winget-pkgs#414637`](https://github.com/microsoft/winget-pkgs/pull/414637).
+After Microsoft publishes it to the community source, install with:
+
+```powershell
+winget install --id Shinnosuke0722.jm --exact
+```
+
+Until `winget search --id Shinnosuke0722.jm --exact` returns the package, use
+Scoop or the PowerShell release installer below. Upgrade a WinGet-managed
+installation with `winget upgrade --id Shinnosuke0722.jm --exact`.
+
+### Linux and macOS release installer
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh | sh
@@ -23,7 +57,7 @@ The installer downloads the matching asset from the latest GitHub Release into
 `~/.jm/bin`. Review [`install.sh`](install.sh) before piping it to a shell if that
 is your security policy.
 
-### Windows (PowerShell)
+### Windows PowerShell release installer
 
 ```powershell
 irm https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.ps1 | iex
@@ -40,6 +74,13 @@ Requires Rust 1.97.1 or newer:
 
 ```sh
 cargo install --git https://github.com/Shinnosuke0722/jm.git --locked
+```
+
+Upgrade a Cargo-managed source installation by re-running that command with
+`--force`:
+
+```sh
+cargo install --git https://github.com/Shinnosuke0722/jm.git --locked --force
 ```
 
 Release installers attempt to verify the downloaded `jm` archive against the
@@ -188,7 +229,7 @@ what the provider currently exposes for your platform.
 | `jm shell completions <shell>` | Generate shell completions |
 | `jm config list\|get\|set\|path` | Inspect or edit configuration |
 | `jm doctor` | Run local configuration and connectivity checks |
-| `jm upgrade` | Upgrade from the latest GitHub Release |
+| `jm upgrade` | Upgrade a release-script installation from the latest GitHub Release |
 
 Run `jm <command> --help` for all flags and examples.
 
@@ -210,8 +251,10 @@ Notes:
   verification. Use it only after evaluating the download source.
 - If a project requirement is not installed, `jm current` reports it and the
   shell hook keeps using the global default until a match exists.
-- Homebrew and Scoop files in `packaging/` are release templates. There is no
-  official tap or bucket advertised by this repository yet.
+- Package-managed installations must be upgraded with Homebrew, Scoop, or
+  WinGet; source installations must be upgraded with `cargo install --force`.
+  `jm upgrade` directly replaces the executable and is only for release-script
+  installations.
 - `jm upgrade` requires a published GitHub Release with an asset matching the
   current operating system and architecture.
 
@@ -220,6 +263,7 @@ Notes:
 - [Windows and PowerShell](docs/windows.md)
 - [Project JDK switching](docs/project-switching.md)
 - [SDKMAN Java migration](docs/sdkman-migration.md)
+- [Package-manager distribution](packaging/README.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security policy](SECURITY.md)
 - [Changelog](CHANGELOG.md)

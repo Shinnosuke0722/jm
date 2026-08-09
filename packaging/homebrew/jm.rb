@@ -1,19 +1,22 @@
-# Homebrew formula for jm — JDK version manager
-# Release template only; no official Homebrew tap is currently published.
-#
-# Maintainers: after a release, update `version`, `url`, and `sha256`
-# for each platform block. The release workflow can automate this via:
-#   sed -i "s/VERSION_PLACEHOLDER/x.y.z/g" jm.rb
+# Homebrew formula template for jm — JDK version manager.
+# The release workflow replaces the version and checksum placeholders, then the
+# generated formula is published at Shinnosuke0722/homebrew-tap.
 
 class Jm < Formula
   desc "Cross-platform JDK and Java version manager"
   homepage "https://github.com/Shinnosuke0722/jm"
-  license any_of: ["MIT", "Apache-2.0"]
   version "VERSION_PLACEHOLDER"
+  license any_of: ["MIT", "Apache-2.0"]
 
   on_macos do
-    url "https://github.com/Shinnosuke0722/jm/releases/download/v#{version}/jm-macos-universal.tar.gz"
-    sha256 "SHA256_MACOS_PLACEHOLDER"
+    on_intel do
+      url "https://github.com/Shinnosuke0722/jm/releases/download/v#{version}/jm-macos-universal.tar.gz"
+      sha256 "SHA256_MACOS_PLACEHOLDER"
+    end
+    on_arm do
+      url "https://github.com/Shinnosuke0722/jm/releases/download/v#{version}/jm-macos-universal.tar.gz"
+      sha256 "SHA256_MACOS_PLACEHOLDER"
+    end
   end
 
   on_linux do
@@ -43,6 +46,12 @@ class Jm < Formula
 
         # Fish (~/.config/fish/config.fish)
         jm shell init fish | source
+
+      Update this Homebrew-managed installation with:
+
+        brew upgrade Shinnosuke0722/tap/jm
+
+      Do not run `jm upgrade` for a Homebrew-managed installation.
     EOS
   end
 

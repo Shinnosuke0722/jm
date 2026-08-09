@@ -13,11 +13,24 @@ requirement.
 
 ::: code-group
 
-```sh [Linux and macOS]
+```sh [Homebrew]
+brew install Shinnosuke0722/tap/jm
+```
+
+```powershell [Scoop]
+scoop bucket add shinnosuke0722 https://github.com/Shinnosuke0722/scoop-bucket
+scoop install shinnosuke0722/jm
+```
+
+```powershell [WinGet — Windows x86-64, after upstream acceptance]
+winget install --id Shinnosuke0722.jm --exact
+```
+
+```sh [Linux/macOS release installer]
 curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh | sh
 ```
 
-```powershell [Windows PowerShell]
+```powershell [Windows release installer]
 irm https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.ps1 | iex
 ```
 
@@ -27,11 +40,17 @@ cargo install --git https://github.com/Shinnosuke0722/jm.git --locked
 
 :::
 
-The source build requires Rust 1.97.1 or newer. Prebuilt GitHub Release users do
-not need Rust or Cargo.
+The first WinGet manifest is still in
+[`microsoft/winget-pkgs#414637`](https://github.com/microsoft/winget-pkgs/pull/414637).
+Use that command only after `winget search --id Shinnosuke0722.jm --exact`
+returns the package.
 
-Before continuing, make sure the current terminal can find `jm`. Choose the PATH
-command that matches the installation method and shell:
+The source build requires Rust 1.97.1 or newer. Prebuilt GitHub Release users do
+not need Rust or Cargo. Upgrade a source installation by re-running the Cargo
+command with `--force`.
+
+Homebrew, Scoop, and WinGet manage command discovery for their installations.
+The following PATH commands are only for direct release-script or source builds:
 
 ::: code-group
 
@@ -70,6 +89,10 @@ root. Verify the CLI is available before moving to step 2:
 ```sh
 jm --version
 ```
+
+If a package manager owns the installation, also use it for upgrades: `brew
+upgrade Shinnosuke0722/tap/jm`, `scoop update jm`, or `winget upgrade --id
+Shinnosuke0722.jm --exact`. Do not run `jm upgrade` for a package-managed binary.
 
 ## 2. Install a JDK
 
