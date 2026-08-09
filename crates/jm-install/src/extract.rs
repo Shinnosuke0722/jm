@@ -186,7 +186,11 @@ fn extract_validated_zip<R: Read + Seek>(
             std::fs::create_dir_all(&output_path)?;
             #[cfg(unix)]
             if let Some(mode) = file.unix_mode() {
-                unix_modes.push((output_path, mode));
+                // A trailing slash is authoritative for ZIP directories, but
+                // some writers still encode them with regular-file mode bits.
+                // Keep the archived group/world bits while ensuring the owner
+                // can traverse and populate the extracted directory.
+                unix_modes.push((output_path, (mode & 0o777) | 0o700));
             }
             continue;
         }
@@ -234,7 +238,7 @@ fn extract_validated_zip<R: Read + Seek>(
 
         #[cfg(unix)]
         if let Some(mode) = file.unix_mode() {
-            unix_modes.push((output_path, mode));
+            unix_modes.push((output_path, mode & 0o777));
         }
     }
 
@@ -245,7 +249,7 @@ fn extract_validated_zip<R: Read + Seek>(
 
         unix_modes.sort_by_key(|(path, _)| Reverse(path.components().count()));
         for (path, mode) in unix_modes {
-            std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode & 0o777))?;
+            std::fs::set_permissions(path, std::fs::Permissions::from_mode(mode))?;
         }
     }
 
@@ -363,7 +367,9 @@ mod tests {
             let mut archive = zip::ZipWriter::new(file);
             let options = zip::write::SimpleFileOptions::default()
                 .compression_method(zip::CompressionMethod::Deflated);
-            archive.start_file("jdk-21/", options).unwrap();
+            archive
+                .start_file("jdk-21/", options.unix_permissions(0o644))
+                .unwrap();
             archive
                 .start_file(format!("jdk-21/bin/{binary_name}"), options)
                 .unwrap();
@@ -381,6 +387,13 @@ mod tests {
 
         assert_eq!(home, destination.join("jdk-21"));
         assert!(home.join("bin").join(binary_name).is_file());
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+
+            let mode = std::fs::metadata(&home).unwrap().permissions().mode();
+            assert_eq!(mode & 0o700, 0o700);
+        }
     }
 
     #[test]
