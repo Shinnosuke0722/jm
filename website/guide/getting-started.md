@@ -47,25 +47,13 @@ operating system and architecture.
 ```sh
 jm default 21
 jm current
-java -version
 ```
 
 `jm default` selects an installed match and updates the manager's global JDK link.
 
-## 4. Pin Java for a project
+## 4. Enable automatic switching
 
-From the project directory, resolve an installed JDK and write its full ID:
-
-```sh
-jm use 21
-```
-
-The command writes `.java-version`. Commit that file when the team should share
-the same Java requirement.
-
-## 5. Enable automatic switching
-
-Add the command for your shell to its startup file:
+Run the command for your shell now, then add the same line to its startup file:
 
 ::: code-group
 
@@ -87,8 +75,27 @@ jm shell init powershell | Invoke-Expression
 
 :::
 
+The command initializes the current shell, setting `JAVA_HOME` and putting the
+selected JDK's `bin` directory on `PATH`. Verify that the shell now uses the
+selected JDK:
+
+```sh
+java -version
+```
+
 The hook selects only an already installed JDK. It does not silently download a
 missing project requirement.
+
+## 5. Pin Java for a project
+
+From the project directory, resolve an installed JDK and write its full ID:
+
+```sh
+jm use 21
+```
+
+The command writes `.java-version`. Commit that file when the team should share
+the same Java requirement.
 
 ## Continue
 
