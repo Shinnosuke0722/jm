@@ -30,6 +30,30 @@ cargo install --git https://github.com/Shinnosuke0722/jm.git --locked
 The source build requires Rust 1.97.1 or newer. Prebuilt GitHub Release users do
 not need Rust or Cargo.
 
+Before continuing, make sure the current terminal can find `jm`. Follow the
+prebuilt installer's printed instructions to persist its directory on `PATH`,
+then either source the updated shell configuration, open a new terminal, or
+activate the default install directory for this session:
+
+::: code-group
+
+```sh [Linux and macOS]
+export PATH="$HOME/.jm/bin:$PATH"
+```
+
+```powershell [Windows PowerShell]
+$env:Path = "$HOME\.jm\bin;$env:Path"
+```
+
+:::
+
+If you chose a custom install directory, substitute that path. Verify the CLI is
+available before moving to step 2:
+
+```sh
+jm --version
+```
+
 ## 2. Install a JDK
 
 Ask for a Java major version or include a distribution name:
