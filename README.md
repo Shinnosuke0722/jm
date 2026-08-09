@@ -1,6 +1,6 @@
 # jm — Cross-platform JDK & Java Version Manager
 
-[简体中文](README.zh-CN.md)
+[Documentation](https://shinnosuke0722.github.io/jm/) · [简体中文](README.zh-CN.md)
 
 [![CI](https://github.com/Shinnosuke0722/jm/actions/workflows/ci.yml/badge.svg)](https://github.com/Shinnosuke0722/jm/actions/workflows/ci.yml)
 [![Latest release](https://img.shields.io/github/v/release/Shinnosuke0722/jm)](https://github.com/Shinnosuke0722/jm/releases/latest)

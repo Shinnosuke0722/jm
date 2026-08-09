@@ -1,6 +1,6 @@
 # jm — 跨平台 JDK / Java 版本管理器
 
-[English](README.md)
+[在线文档](https://shinnosuke0722.github.io/jm/) · [English](README.md)
 
 [![CI](https://github.com/Shinnosuke0722/jm/actions/workflows/ci.yml/badge.svg)](https://github.com/Shinnosuke0722/jm/actions/workflows/ci.yml)
 [![最新版本](https://img.shields.io/github/v/release/Shinnosuke0722/jm)](https://github.com/Shinnosuke0722/jm/releases/latest)

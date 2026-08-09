@@ -4,7 +4,7 @@
 home is exposed through `JAVA_HOME`, and its `bin` directory is placed on the
 current shell's `PATH`.
 
-## 1. Enable the shell hook
+## 1. Enable the shell hook {#enable-the-shell-hook}
 
 Add one initialization command to the shell startup file:
 

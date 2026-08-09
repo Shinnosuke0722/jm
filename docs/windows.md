@@ -24,7 +24,9 @@ jm --version
 ```
 
 If your policy does not permit piping remote content to `Invoke-Expression`,
-download and inspect [`install.ps1`](../install.ps1) before running it locally.
+download and inspect
+[`install.ps1`](https://github.com/Shinnosuke0722/jm/blob/main/install.ps1) before
+running it locally.
 
 ## Build from source
 
