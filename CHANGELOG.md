@@ -7,6 +7,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-09
+
 ### Added
 
 - Added a committed lockfile so installs, CI, and release builds resolve the
@@ -22,6 +24,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
   installation, project switching, and the supported `.sdkmanrc` Java entry.
 - Modernized CI and release actions, locked dependency resolution, and added an
   explicit Rust 1.82 MSRV check.
+- Made GitHub Release notes use the curated version section from this changelog.
 - Limited ZIP extraction to the Stored and Deflate methods used by supported
   release archives, reducing optional dependency and security-audit surface.
 - PowerShell auto-switching now updates `JAVA_HOME` and `PATH` natively, while
@@ -68,5 +71,6 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Validation of custom distribution names supplied in CLI version
   specifications before path and API use.
 
-[Unreleased]: https://github.com/Shinnosuke0722/jm/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Shinnosuke0722/jm/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/Shinnosuke0722/jm/releases/tag/v1.0.1
 [1.0.0]: https://github.com/Shinnosuke0722/jm/releases/tag/v1.0.0

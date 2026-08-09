@@ -1,6 +1,6 @@
 [package]
 name = "jm-core"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 rust-version = "1.82"
 description = "Core types and project resolution for the jm JDK version manager"

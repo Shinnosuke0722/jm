@@ -147,15 +147,16 @@ jobs:
           sha256sum *.tar.gz *.zip > sha256sums.txt
           cat sha256sums.txt
 
-      - name: Generate changelog
-        id: changelog
-        uses: orhun/git-cliff-action@v4
-        with:
-          config: cliff.toml
-          args: --latest --strip header
-        env:
-          OUTPUT: CHANGES.md
-          GITHUB_REPO: ${{ github.repository }}
+      - name: Generate release notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v version="$VERSION" '
+            $0 ~ "^## \\[" version "\\]( |$)" { found = 1; next }
+            found && $0 ~ "^## \\[" { exit }
+            found { print }
+            END { if (!found) exit 1 }
+          ' CHANGELOG.md > CHANGES.md
+          test -s CHANGES.md
 
       - name: Generate Homebrew formula
         run: |

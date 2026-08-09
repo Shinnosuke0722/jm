@@ -4,7 +4,7 @@ members = ["crates/*"]
 
 [package]
 name = "jm"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 rust-version = "1.82"
 description = "Cross-platform JDK and Java version manager written in Rust"
