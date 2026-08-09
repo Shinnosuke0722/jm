@@ -119,7 +119,8 @@ async fn fetch_latest_release() -> Result<GitHubRelease> {
         bail!("GitHub API error: HTTP {}", response.status());
     }
 
-    Ok(response.json().await?)
+    let release = response.json().await?;
+    Ok(release)
 }
 
 fn get_platform_asset_name() -> Result<String> {

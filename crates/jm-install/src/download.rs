@@ -1,3 +1,4 @@
+use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use jm_api::models::DownloadInfo;
 use jm_core::error::{JmError, Result};
@@ -161,8 +162,11 @@ pub async fn download_jdk_with_proxy(
         .map_err(|e| JmError::DownloadFailed(e.to_string()))?;
 
     let mut stream = response.bytes_stream();
-    use futures_util::StreamExt;
-    while let Some(chunk) = stream.next().await {
+    loop {
+        let next = stream.next().await;
+        let Some(chunk) = next else {
+            break;
+        };
         let chunk = chunk.map_err(|e| JmError::DownloadFailed(e.to_string()))?;
         file.write_all(&chunk)
             .await

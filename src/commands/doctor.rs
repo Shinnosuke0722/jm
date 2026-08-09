@@ -267,7 +267,8 @@ async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
         "{}/major_versions?maintained=true",
         config.api.disco_api_url
     );
-    match client.get(&url).send().await {
+    let response = client.get(&url).send().await;
+    match response {
         Ok(resp) if resp.status().is_success() => Check {
             name: "API connectivity (Foojay Disco)",
             passed: true,
