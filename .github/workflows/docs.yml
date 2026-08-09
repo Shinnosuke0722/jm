@@ -19,7 +19,7 @@ on:
 
 concurrency:
   group: ${{ github.ref == 'refs/heads/main' && 'pages' || format('docs-{0}-{1}', github.event_name, github.ref) }}
-  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+  cancel-in-progress: true
 
 jobs:
   build:
