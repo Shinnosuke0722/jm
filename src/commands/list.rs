@@ -17,14 +17,22 @@ pub async fn run(
     major: Option<u32>,
     lts: bool,
 ) -> Result<()> {
+    let distribution = distribution
+        .map(|value| {
+            let parsed = Distribution::parse(value);
+            parsed.validate()?;
+            Ok::<_, jm_core::error::JmError>(parsed)
+        })
+        .transpose()?;
+
     if remote {
-        list_remote(distribution, major, lts).await
+        list_remote(distribution.as_ref(), major, lts).await
     } else {
-        list_local(distribution, major, lts)
+        list_local(distribution.as_ref(), major, lts)
     }
 }
 
-fn list_local(distribution: Option<&str>, major: Option<u32>, lts: bool) -> Result<()> {
+fn list_local(distribution: Option<&Distribution>, major: Option<u32>, lts: bool) -> Result<()> {
     let dirs = StorageDirs::resolve()?;
     let registry = Registry::load(&dirs)?;
 
@@ -37,9 +45,8 @@ fn list_local(distribution: Option<&str>, major: Option<u32>, lts: bool) -> Resu
     let mut installations = registry.sorted();
 
     // Apply filters
-    if let Some(dist) = distribution {
-        let dist = Distribution::parse(dist);
-        installations.retain(|i| i.distribution == dist);
+    if let Some(distribution) = distribution {
+        installations.retain(|installation| &installation.distribution == distribution);
     }
     if let Some(major) = major {
         installations.retain(|i| i.major_version == major);
@@ -76,7 +83,11 @@ fn list_local(distribution: Option<&str>, major: Option<u32>, lts: bool) -> Resu
     Ok(())
 }
 
-async fn list_remote(distribution: Option<&str>, major: Option<u32>, lts: bool) -> Result<()> {
+async fn list_remote(
+    distribution: Option<&Distribution>,
+    major: Option<u32>,
+    lts: bool,
+) -> Result<()> {
     let dirs = StorageDirs::resolve()?;
     dirs.ensure_dirs()?;
     let config = Config::load(&dirs)?;
@@ -90,7 +101,8 @@ async fn list_remote(distribution: Option<&str>, major: Option<u32>, lts: bool) 
         // List packages for a specific major version
         let query = PackageQuery {
             major_version: Some(major),
-            distribution: distribution.map(|d| Distribution::parse(d).api_parameter().to_string()),
+            version_requirement: None,
+            distribution: distribution.map(|value| value.api_parameter().to_string()),
             operating_system: Some(platform.os.api_parameter().to_string()),
             architecture: Some(platform.arch.api_parameter().to_string()),
             archive_type: Some(platform.os.default_archive_type().to_string()),

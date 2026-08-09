@@ -1,66 +1,72 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to this project are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/),
-and this project adheres to [Semantic Versioning](https://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+
+- Added a committed lockfile so installs, CI, and release builds resolve the
+  same dependency versions while preserving the declared Rust 1.82 MSRV.
+- Added a Simplified Chinese README, focused Windows, project switching, and
+  SDKMAN migration guides, plus issue and pull request templates, support
+  guidance, a code of conduct, and Dependabot configuration.
+
+### Changed
+
+- Updated the canonical repository identity to `Shinnosuke0722/jm`.
+- Reworked project documentation around verifiable behavior, platform limits,
+  installation, project switching, and the supported `.sdkmanrc` Java entry.
+- Modernized CI and release actions, locked dependency resolution, and added an
+  explicit Rust 1.82 MSRV check.
+- Limited ZIP extraction to the Stored and Deflate methods used by supported
+  release archives, reducing optional dependency and security-audit surface.
+- PowerShell auto-switching now updates `JAVA_HOME` and `PATH` natively, while
+  Windows uses an NTFS junction for the active JDK without requiring Developer
+  Mode or administrator privileges.
+
+### Fixed
+
+- Fixed the invalid CI workflow job name that prevented every job from starting.
+- Wired `jm use --install` and `jm default --install` to install a missing JDK
+  before selecting it.
+- Fixed safe replacement and removal of the active Windows JDK junction, plus
+  Windows extraction tests and unsupported ARM64 installer handling.
+- Validated configured distribution names and provider-supplied filenames and
+  Java version components before using them in filesystem paths.
+- Made project, `use`, and `default` selection consistently choose the highest
+  matching Java version, including numeric build components.
+- Made release installers fail when a fetched checksum list omits the selected
+  artifact instead of silently continuing without verification.
+- Updated audited transitive dependencies while preserving the Rust 1.82 MSRV.
 
 ## [1.0.0] - 2026-04-05
 
 ### Added
-- Uninstall confirmation prompt (dialoguer), `--force` to skip
-- HTTP proxy support threaded through all API clients and downloads
-- Performance benchmarks confirming sub-microsecond operations
-- Homebrew formula and Scoop manifest for package manager distribution
-- CHANGELOG.md, CONTRIBUTING.md, SECURITY.md
-- Feature comparison table and troubleshooting FAQ in README
+
+- JDK installation, removal, local listing, remote search, and global default
+  management.
+- Project requirements through `.java-version`, plus reading the `java=` entry
+  from `.sdkmanrc`.
+- Shell initialization and completions for Bash, Zsh, Fish, and PowerShell.
+- Foojay Disco package discovery with an Adoptium fallback for Temurin requests.
+- Platform detection for Linux, macOS, and Windows on x86-64 and ARM64.
+- GitHub Release builds for Linux x86-64/ARM64, macOS Intel/Apple silicon, and
+  Windows x86-64.
+- Configuration, diagnostics, proxy support, API caching, self-upgrade, and
+  release installer scripts.
 
 ### Security
-- Registry: atomic writes (tmp+rename) and exclusive file locking (fs2)
-- Symlink: atomic replacement via temp symlink + rename (eliminates TOCTOU)
-- Download: PartFileGuard cleans up .part files on interruption
-- Distribution: validate user-supplied names against `[a-zA-Z0-9_-]`
 
-### Testing
-- 26 CLI integration tests (assert_cmd)
-- 7 API mock tests (wiremock)
-- 9 shell crate tests
-- 6 config load/save tests
-- Criterion benchmarks (18 bench functions)
-- Total: 89 tests, 0 clippy warnings
+- Conditional SHA-256 verification for JDK downloads when the provider supplies
+  checksum metadata.
+- Exclusive locking and temporary-file replacement for registry writes.
+- Cleanup of interrupted `.part` downloads.
+- Validation of custom distribution names supplied in CLI version
+  specifications before path and API use.
 
-### CI/CD
-- Swatinem/rust-cache on all CI and release jobs
-- Security audit job (rustsec/audit-check)
-- MSRV verification (Rust 1.82)
-- Code coverage with cargo-llvm-cov and Codecov
-- git-cliff for automated changelog generation
-
-### Fixed
-- Repository URLs corrected from `jm-sh/jm` to `lfming0419/jm`
-- MSRV corrected from 1.75 to 1.82 (required by `is_none_or`)
-- Code formatting normalized via `cargo fmt`
-
-## [0.1.0] - 2026-04-05
-
-### Added
-- Core CLI with 13 commands: install, uninstall, list, search, use, default, current, which, env, shell, config, doctor, upgrade
-- Multi-distribution support (13+ distributions) via Foojay Disco API
-- Adoptium API fallback when Disco is unavailable
-- Cross-platform support: Linux (x86_64, aarch64), macOS (x86_64, aarch64, universal), Windows (x86_64)
-- Shell integration with auto-switching for bash, zsh, fish, PowerShell
-- Project-level version detection via `.java-version` and `.sdkmanrc` files
-- SHA256 checksum verification on download
-- API response caching with configurable TTL
-- TOML-based configuration system
-- Self-update mechanism (`jm upgrade`)
-- One-command install scripts for Unix (`install.sh`) and Windows (`install.ps1`)
-- CI pipeline with check, format, clippy, and cross-platform tests
-- Multi-platform release pipeline with universal macOS binary
-- Dual license: MIT OR Apache-2.0
-
-[Unreleased]: https://github.com/lfming0419/jm/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/lfming0419/jm/compare/v0.1.0...v1.0.0
-[0.1.0]: https://github.com/lfming0419/jm/releases/tag/v0.1.0
+[Unreleased]: https://github.com/Shinnosuke0722/jm/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Shinnosuke0722/jm/releases/tag/v1.0.0

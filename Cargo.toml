@@ -7,14 +7,14 @@ name = "jm"
 version = "1.0.0"
 edition = "2021"
 rust-version = "1.82"
-description = "A fast, cross-platform JDK version manager"
+description = "Cross-platform JDK and Java version manager written in Rust"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"
-homepage = "https://github.com/lfming0419/jm"
-repository = "https://github.com/lfming0419/jm"
-documentation = "https://github.com/lfming0419/jm#readme"
+homepage = "https://github.com/Shinnosuke0722/jm"
+repository = "https://github.com/Shinnosuke0722/jm"
+documentation = "https://github.com/Shinnosuke0722/jm#readme"
 readme = "README.md"
-keywords = ["java", "jdk", "version-manager", "cli"]
+keywords = ["java", "jdk", "openjdk", "version-manager", "cli"]
 categories = ["command-line-utilities", "development-tools"]
 
 [dependencies]
@@ -27,8 +27,8 @@ clap = { version = "4", features = ["derive", "env", "string"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "fs"] }
 anyhow = "1"
 console = "0.15"
-comfy-table = "7"
-indicatif = "0.17"
+# comfy-table 7.2 switched to Rust 2024 edition; keep the declared Rust 1.82 MSRV.
+comfy-table = "~7.1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = { version = "0.4", features = ["serde"] }
@@ -38,7 +38,9 @@ tempfile = "3"
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "gzip"] }
 tar = "0.4"
 flate2 = "1"
-zip = "2"
+# Release archives use standard Deflate compression. Avoid unrelated ZIP
+# codecs and timestamp parsing that increase the dependency and audit surface.
+zip = { version = "2", default-features = false, features = ["deflate"] }
 toml = "0.8"
 
 [dev-dependencies]

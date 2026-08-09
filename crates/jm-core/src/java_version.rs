@@ -137,6 +137,32 @@ impl Ord for JavaVersion {
             .cmp(&other.major)
             .then_with(|| self.minor.unwrap_or(0).cmp(&other.minor.unwrap_or(0)))
             .then_with(|| self.patch.unwrap_or(0).cmp(&other.patch.unwrap_or(0)))
+            .then_with(|| compare_build(self.build.as_deref(), other.build.as_deref()))
+    }
+}
+
+fn compare_build(left: Option<&str>, right: Option<&str>) -> Ordering {
+    match (left, right) {
+        (None, None) => Ordering::Equal,
+        (None, Some(_)) => Ordering::Less,
+        (Some(_), None) => Ordering::Greater,
+        (Some(left), Some(right)) => {
+            let numeric_prefix = |value: &str| {
+                value
+                    .chars()
+                    .take_while(char::is_ascii_digit)
+                    .collect::<String>()
+                    .parse::<u64>()
+                    .ok()
+            };
+
+            match (numeric_prefix(left), numeric_prefix(right)) {
+                (Some(left_number), Some(right_number)) => {
+                    left_number.cmp(&right_number).then_with(|| left.cmp(right))
+                }
+                _ => left.cmp(right),
+            }
+        }
     }
 }
 
@@ -281,6 +307,16 @@ mod tests {
         let v21_old = JavaVersion::parse("21.0.1").unwrap();
         assert!(v17 < v21);
         assert!(v21_old < v21);
+    }
+
+    #[test]
+    fn version_ordering_includes_build_number() {
+        let build_5 = JavaVersion::parse("21.0.10+5").unwrap();
+        let build_7 = JavaVersion::parse("21.0.10+7").unwrap();
+        let build_10 = JavaVersion::parse("21.0.10+10").unwrap();
+
+        assert!(build_5 < build_7);
+        assert!(build_7 < build_10);
     }
 
     #[test]

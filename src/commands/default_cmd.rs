@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{bail, Result};
 use console::style;
 use jm_core::java_version::VersionSpec;
 use jm_core::registry::Registry;
@@ -7,22 +7,26 @@ use jm_install::link;
 
 use crate::output;
 
-pub fn run(version: Option<&str>) -> Result<()> {
+pub async fn run(version: Option<&str>, install_if_missing: bool) -> Result<()> {
     let dirs = StorageDirs::resolve()?;
 
     match version {
-        Some(version) => set_default(&dirs, version),
+        Some(version) => set_default(&dirs, version, install_if_missing).await,
+        None if install_if_missing => bail!("--install requires a version"),
         None => show_default(&dirs),
     }
 }
 
-fn set_default(dirs: &StorageDirs, version: &str) -> Result<()> {
+async fn set_default(dirs: &StorageDirs, version: &str, install_if_missing: bool) -> Result<()> {
     let registry = Registry::load(dirs)?;
     let spec = VersionSpec::parse(version)?;
     let matches = registry.find_matching(spec.distribution.as_ref(), &spec.version);
 
     let installation = match matches.len() {
         0 => {
+            if install_if_missing {
+                return super::install::run(version, None, true, false, false).await;
+            }
             output::print_error(&format!(
                 "No installed JDK matches '{}'. Run 'jm install {}' first.",
                 version, version

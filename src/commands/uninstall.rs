@@ -73,7 +73,7 @@ pub fn run(version: &str, force: bool) -> Result<()> {
     let current = link::read_current_link(&dirs.current_link())?;
     if let Some(current_target) = current {
         if current_target == install_path {
-            let _ = std::fs::remove_file(dirs.current_link());
+            link::remove_current_link(&dirs.current_link())?;
             output::print_warning("Removed global default (was pointing to uninstalled JDK)");
         }
     }

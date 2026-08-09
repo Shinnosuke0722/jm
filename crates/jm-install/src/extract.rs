@@ -82,6 +82,37 @@ fn find_jdk_home(dir: &Path, os: Os) -> Result<PathBuf> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn extract_archive_reads_deflated_zip() {
+        let dir = tempfile::tempdir().unwrap();
+        let archive_path = dir.path().join("jdk.zip");
+        let binary_name = if cfg!(windows) { "java.exe" } else { "java" };
+
+        {
+            let file = std::fs::File::create(&archive_path).unwrap();
+            let mut archive = zip::ZipWriter::new(file);
+            let options = zip::write::SimpleFileOptions::default()
+                .compression_method(zip::CompressionMethod::Deflated);
+            archive
+                .start_file(format!("jdk-21/bin/{binary_name}"), options)
+                .unwrap();
+            archive.write_all(b"test java binary").unwrap();
+            archive.finish().unwrap();
+        }
+
+        let os = if cfg!(windows) {
+            Os::Windows
+        } else {
+            Os::Linux
+        };
+        let destination = dir.path().join("extracted");
+        let home = extract_archive(&archive_path, &destination, os).unwrap();
+
+        assert_eq!(home, destination.join("jdk-21"));
+        assert!(home.join("bin").join(binary_name).is_file());
+    }
 
     #[test]
     fn find_jdk_home_standard_layout() {
@@ -113,7 +144,6 @@ mod tests {
             .join("Home");
         std::fs::create_dir_all(bundle_dir.join("bin")).unwrap();
 
-        #[cfg(unix)]
         std::fs::write(bundle_dir.join("bin/java"), "").unwrap();
 
         let home = find_jdk_home(dir.path(), Os::MacOs).unwrap();

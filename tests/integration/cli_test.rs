@@ -2,7 +2,7 @@ use assert_cmd::Command;
 use predicates::prelude::*;
 
 fn jm() -> Command {
-    Command::cargo_bin("jm").unwrap()
+    assert_cmd::cargo::cargo_bin_cmd!("jm")
 }
 
 // ─── Basic CLI ─────────────────────────────────────────────────────────────
@@ -286,6 +286,26 @@ fn alias_rm_works() {
 fn install_rejects_path_traversal_distribution() {
     let tmp = tempfile::tempdir().unwrap();
     jm().args(["install", "../../etc/passwd-21"])
+        .env("JM_HOME", tmp.path())
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("invalid distribution name"));
+}
+
+#[test]
+fn list_rejects_invalid_distribution() {
+    let tmp = tempfile::tempdir().unwrap();
+    jm().args(["list", "--distribution", "../../escape"])
+        .env("JM_HOME", tmp.path())
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("invalid distribution name"));
+}
+
+#[test]
+fn search_rejects_invalid_distribution_before_network_access() {
+    let tmp = tempfile::tempdir().unwrap();
+    jm().args(["search", "21", "--distribution", "../../escape"])
         .env("JM_HOME", tmp.path())
         .assert()
         .failure()

@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.\n
 """
 body = """
 {%- macro remote_url() -%}
-  https://github.com/lfming0419/jm
+  https://github.com/Shinnosuke0722/jm
 {%- endmacro -%}
 
 {% if version -%}
