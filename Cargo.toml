@@ -1,21 +1,35 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 members = ["crates/*"]
 
-[package]
-name = "jm"
+[workspace.package]
 version = "1.0.1"
 edition = "2021"
 rust-version = "1.97.1"
-description = "Cross-platform JDK and Java version manager written in Rust"
 authors = ["lfming0419"]
 license = "MIT OR Apache-2.0"
-homepage = "https://github.com/Shinnosuke0722/jm"
 repository = "https://github.com/Shinnosuke0722/jm"
+
+[workspace.lints.rust]
+rust-2024-compatibility = "warn"
+
+[package]
+name = "jm"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "Cross-platform JDK and Java version manager written in Rust"
+authors.workspace = true
+license.workspace = true
+homepage = "https://github.com/Shinnosuke0722/jm"
+repository.workspace = true
 documentation = "https://github.com/Shinnosuke0722/jm#readme"
 readme = "README.md"
 keywords = ["java", "jdk", "openjdk", "version-manager", "cli"]
 categories = ["command-line-utilities", "development-tools"]
+
+[lints]
+workspace = true
 
 [dependencies]
 jm-core = { path = "crates/jm-core" }
