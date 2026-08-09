@@ -13,7 +13,7 @@ const softwareVersion = cargoManifest.match(
 )?.[1]
 
 function canonicalUrl(relativePath: string) {
-  const path = relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
+  const path = relativePath.replace(/index\.md$/, '').replace(/\.md$/, '.html')
   return new URL(path, siteUrl).href
 }
 
@@ -24,7 +24,7 @@ export default defineConfig({
   description: defaultDescription,
   base,
   appearance: false,
-  cleanUrls: true,
+  cleanUrls: false,
   lastUpdated: true,
   sitemap: {
     hostname: siteUrl,
@@ -99,24 +99,30 @@ export default defineConfig({
     logo: '/jm-mark.svg',
     siteTitle: 'jm',
     nav: [
-      { text: 'Get started', link: '/guide/getting-started' },
-      { text: 'Windows', link: '/guide/windows' },
-      { text: 'Project switching', link: '/guide/project-switching' },
-      { text: 'SDKMAN migration', link: '/guide/sdkman-migration' },
+      { text: 'Get started', link: '/guide/getting-started.html' },
+      { text: 'Windows', link: '/guide/windows.html' },
+      { text: 'Project switching', link: '/guide/project-switching.html' },
+      { text: 'SDKMAN migration', link: '/guide/sdkman-migration.html' },
       { text: 'GitHub', link: repositoryUrl },
     ],
     sidebar: {
       '/guide/': [
         {
           text: 'Start here',
-          items: [{ text: 'Getting started', link: '/guide/getting-started' }],
+          items: [{ text: 'Getting started', link: '/guide/getting-started.html' }],
         },
         {
           text: 'Workflows',
           items: [
-            { text: 'Windows and PowerShell', link: '/guide/windows' },
-            { text: 'Project JDK switching', link: '/guide/project-switching' },
-            { text: 'Migrate from SDKMAN', link: '/guide/sdkman-migration' },
+            { text: 'Windows and PowerShell', link: '/guide/windows.html' },
+            {
+              text: 'Project JDK switching',
+              link: '/guide/project-switching.html',
+            },
+            {
+              text: 'Migrate from SDKMAN',
+              link: '/guide/sdkman-migration.html',
+            },
           ],
         },
       ],

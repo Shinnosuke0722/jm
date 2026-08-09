@@ -5,10 +5,10 @@ const output = resolve('.vitepress/dist')
 const siteUrl = 'https://shinnosuke0722.github.io/jm/'
 const pages = [
   ['index.html', siteUrl],
-  ['guide/getting-started.html', `${siteUrl}guide/getting-started`],
-  ['guide/windows.html', `${siteUrl}guide/windows`],
-  ['guide/project-switching.html', `${siteUrl}guide/project-switching`],
-  ['guide/sdkman-migration.html', `${siteUrl}guide/sdkman-migration`],
+  ['guide/getting-started.html', `${siteUrl}guide/getting-started.html`],
+  ['guide/windows.html', `${siteUrl}guide/windows.html`],
+  ['guide/project-switching.html', `${siteUrl}guide/project-switching.html`],
+  ['guide/sdkman-migration.html', `${siteUrl}guide/sdkman-migration.html`],
 ]
 
 function requireText(source, expected, file) {
@@ -32,18 +32,18 @@ requireText(home, '<h1 id="jm-hero-title">Java Manager.', 'index.html')
 requireText(home, '<script type="application/ld+json">', 'index.html')
 requireText(home, '"@type":"SoftwareApplication"', 'index.html')
 requireText(home, 'src="/jm/jm-mark.svg"', 'index.html')
+for (const [, canonical] of pages.slice(1)) {
+  requireText(home, `href="${new URL(canonical).pathname}"`, 'index.html')
+}
 
 const sitemap = await readFile(resolve(output, 'sitemap.xml'), 'utf8')
 for (const [, canonical] of pages) {
   requireText(sitemap, `<loc>${canonical}</loc>`, 'sitemap.xml')
 }
 
-const robots = await readFile(resolve(output, 'robots.txt'), 'utf8')
-requireText(robots, `Sitemap: ${siteUrl}sitemap.xml`, 'robots.txt')
-
 const socialPreview = await stat(resolve(output, 'social-preview.jpg'))
 if (socialPreview.size >= 1024 * 1024) {
   throw new Error(`social-preview.jpg is ${socialPreview.size} bytes; GitHub requires under 1 MiB`)
 }
 
-console.log(`Verified ${pages.length} pages, sitemap, robots.txt, and Social Preview.`)
+console.log(`Verified ${pages.length} pages, sitemap, and Social Preview.`)

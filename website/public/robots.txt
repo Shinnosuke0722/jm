@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://shinnosuke0722.github.io/jm/sitemap.xml

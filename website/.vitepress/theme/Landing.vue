@@ -26,18 +26,15 @@ async function copyInstallCommand() {
           <p class="jm-eyebrow"><span>jm</span> / Java Manager</p>
           <h1 id="jm-hero-title">Java Manager.<br />Every platform.</h1>
           <p class="jm-hero__lede">
-            That is the idea behind jm: a native Rust CLI for installing, switching,
-            and pinning JDK versions across Linux, macOS, and Windows.
+            That is the idea behind jm: a native Rust CLI for installing, switching, and pinning JDK
+            versions across Linux, macOS, and Windows.
           </p>
           <div class="jm-hero__actions">
-            <a class="jm-button jm-button--primary" :href="withBase('/guide/getting-started')">
+            <a class="jm-button jm-button--primary" :href="withBase('/guide/getting-started.html')">
               Get started
               <span aria-hidden="true">→</span>
             </a>
-            <a
-              class="jm-button jm-button--quiet"
-              href="https://github.com/Shinnosuke0722/jm"
-            >
+            <a class="jm-button jm-button--quiet" href="https://github.com/Shinnosuke0722/jm">
               View on GitHub
             </a>
           </div>
@@ -100,8 +97,10 @@ async function copyInstallCommand() {
             </button>
           </div>
           <code>{{ installCommand }}</code>
-          <p class="sr-only" aria-live="polite">{{ copied ? 'Install command copied.' : '' }}</p>
-          <a :href="withBase('/guide/getting-started')">Windows and source installation →</a>
+          <p class="sr-only" aria-live="polite">
+            {{ copied ? 'Install command copied.' : '' }}
+          </p>
+          <a :href="withBase('/guide/getting-started.html')">Windows and source installation →</a>
         </div>
       </div>
     </section>
@@ -114,13 +113,13 @@ async function copyInstallCommand() {
             <h2 id="jm-paths-title">Documentation shaped around the work.</h2>
           </div>
           <p>
-            Each guide starts with a developer task and stays explicit about platform
-            behavior, precedence, and fallback rules.
+            Each guide starts with a developer task and stays explicit about platform behavior,
+            precedence, and fallback rules.
           </p>
         </div>
 
         <div class="jm-doc-grid">
-          <a class="jm-doc-link jm-doc-link--wide" :href="withBase('/guide/windows')">
+          <a class="jm-doc-link jm-doc-link--wide" :href="withBase('/guide/windows.html')">
             <span class="jm-doc-link__index">WIN</span>
             <div>
               <h3>Use jm on Windows</h3>
@@ -128,7 +127,7 @@ async function copyInstallCommand() {
             </div>
             <b aria-hidden="true">↗</b>
           </a>
-          <a class="jm-doc-link" :href="withBase('/guide/project-switching')">
+          <a class="jm-doc-link" :href="withBase('/guide/project-switching.html')">
             <span class="jm-doc-link__index">PATH</span>
             <div>
               <h3>Switch by project</h3>
@@ -136,7 +135,7 @@ async function copyInstallCommand() {
             </div>
             <b aria-hidden="true">↗</b>
           </a>
-          <a class="jm-doc-link" :href="withBase('/guide/sdkman-migration')">
+          <a class="jm-doc-link" :href="withBase('/guide/sdkman-migration.html')">
             <span class="jm-doc-link__index">MOVE</span>
             <div>
               <h3>Migrate from SDKMAN</h3>
@@ -154,8 +153,8 @@ async function copyInstallCommand() {
           <p class="jm-section-label">OpenJDK catalog</p>
           <h2 id="jm-distributions-title">Ask for the build you need.</h2>
           <p>
-            Search the provider catalog by distribution, Java version, operating system,
-            and architecture.
+            Search the provider catalog by distribution, Java version, operating system, and
+            architecture.
           </p>
         </div>
         <ul>
@@ -170,8 +169,8 @@ async function copyInstallCommand() {
     </section>
 
     <p class="jm-arm-note jm-shell">
-      * Windows ARM64 does not currently receive a prebuilt release artifact. See the
-      platform guide for source-build notes.
+      * Windows ARM64 does not currently receive a prebuilt release artifact. See the platform guide
+      for source-build notes.
     </p>
   </main>
 </template>
