@@ -30,25 +30,42 @@ cargo install --git https://github.com/Shinnosuke0722/jm.git --locked
 The source build requires Rust 1.97.1 or newer. Prebuilt GitHub Release users do
 not need Rust or Cargo.
 
-Before continuing, make sure the current terminal can find `jm`. Follow the
-prebuilt installer's printed instructions to persist its directory on `PATH`,
-then either source the updated shell configuration, open a new terminal, or
-activate the default install directory for this session:
+Before continuing, make sure the current terminal can find `jm`. Choose the PATH
+command that matches the installation method and shell:
 
 ::: code-group
 
-```sh [Linux and macOS]
+```sh [Prebuilt — Linux and macOS]
 export PATH="$HOME/.jm/bin:$PATH"
 ```
 
-```powershell [Windows PowerShell]
+```powershell [Prebuilt — PowerShell]
 $env:Path = "$HOME\.jm\bin;$env:Path"
+```
+
+```sh [Source — Linux and macOS]
+export PATH="${CARGO_INSTALL_ROOT:-${CARGO_HOME:-$HOME/.cargo}}/bin:$PATH"
+```
+
+```powershell [Source — PowerShell]
+$cargoRoot = if ($env:CARGO_INSTALL_ROOT) {
+  $env:CARGO_INSTALL_ROOT
+} elseif ($env:CARGO_HOME) {
+  $env:CARGO_HOME
+} else {
+  "$HOME\.cargo"
+}
+$env:Path = "$cargoRoot\bin;$env:Path"
 ```
 
 :::
 
-If you chose a custom install directory, substitute that path. Verify the CLI is
-available before moving to step 2:
+These commands activate the default locations for the current session. Follow
+the prebuilt installer's printed instructions to persist its directory, or open
+a new terminal after the Windows installer updates the user PATH. If you chose a
+custom prebuilt directory or configured Cargo's `--root`, `install.root`,
+`CARGO_INSTALL_ROOT`, or `CARGO_HOME`, substitute the corresponding installation
+root. Verify the CLI is available before moving to step 2:
 
 ```sh
 jm --version

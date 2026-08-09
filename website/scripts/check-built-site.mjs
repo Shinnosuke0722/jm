@@ -17,6 +17,12 @@ function requireText(source, expected, file) {
   }
 }
 
+function forbidText(source, unexpected, file) {
+  if (source.includes(unexpected)) {
+    throw new Error(`${file} unexpectedly contains: ${unexpected}`)
+  }
+}
+
 for (const [file, canonical] of pages) {
   const html = await readFile(resolve(output, file), 'utf8')
   requireText(html, '<meta name="description"', file)
@@ -34,6 +40,25 @@ requireText(home, '"@type":"SoftwareApplication"', 'index.html')
 requireText(home, 'src="/jm/jm-mark.svg"', 'index.html')
 for (const [, canonical] of pages.slice(1)) {
   requireText(home, `href="${new URL(canonical).pathname}"`, 'index.html')
+}
+
+const projectSwitching = await readFile(resolve(output, 'guide/project-switching.html'), 'utf8')
+requireText(projectSwitching, 'id="enable-the-shell-hook"', 'guide/project-switching.html')
+
+const sdkmanMigration = await readFile(resolve(output, 'guide/sdkman-migration.html'), 'utf8')
+requireText(
+  sdkmanMigration,
+  'href="./project-switching.html#enable-the-shell-hook"',
+  'guide/sdkman-migration.html',
+)
+
+for (const file of [
+  'guide/windows.html',
+  'guide/project-switching.html',
+  'guide/sdkman-migration.html',
+]) {
+  const html = await readFile(resolve(output, file), 'utf8')
+  forbidText(html, 'class="last-updated"', file)
 }
 
 const sitemap = await readFile(resolve(output, 'sitemap.xml'), 'utf8')

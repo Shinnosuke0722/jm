@@ -17,6 +17,10 @@ on:
       - "Cargo.toml"
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && 'pages' || format('docs-{0}-{1}', github.event_name, github.ref) }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
 jobs:
   build:
     name: Build documentation
@@ -64,9 +68,6 @@ jobs:
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
-    concurrency:
-      group: pages
-      cancel-in-progress: false
     permissions:
       actions: read
       pages: write

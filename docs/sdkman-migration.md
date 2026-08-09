@@ -61,7 +61,7 @@ normal validation. Availability depends on the upstream catalog and platform.
    jm install temurin-21.0.2
    ```
 
-3. Enable the [jm shell hook](project-switching.md#1-enable-the-shell-hook), enter
+3. Enable the [jm shell hook](project-switching.md#enable-the-shell-hook), enter
    the project, and verify both the detected requirement and running Java:
 
    ```sh
