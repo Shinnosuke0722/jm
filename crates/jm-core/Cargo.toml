@@ -15,7 +15,6 @@ toml = { workspace = true }
 thiserror = { workspace = true }
 dirs = { workspace = true }
 chrono = { workspace = true }
-fs2 = "0.4"
 
 [dev-dependencies]
 tempfile = "3"

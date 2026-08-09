@@ -3,7 +3,6 @@ use crate::error::Result;
 use crate::java_version::JavaVersion;
 use crate::storage::StorageDirs;
 use chrono::{DateTime, Utc};
-use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -81,7 +80,7 @@ impl Registry {
             std::fs::create_dir_all(parent)?;
         }
         let lock_file = std::fs::File::create(&lock_path)?;
-        lock_file.lock_exclusive()?;
+        lock_file.lock()?;
 
         let mut registry = Self::load_from(&path)?;
         let result = f(&mut registry)?;
