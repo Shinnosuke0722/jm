@@ -16,8 +16,12 @@ pub struct StorageDirs {
 impl StorageDirs {
     /// Resolve storage directories, respecting `JM_HOME` override.
     pub fn resolve() -> Result<Self> {
-        if let Ok(home) = std::env::var("JM_HOME") {
-            let root = PathBuf::from(home);
+        let home = std::env::var("JM_HOME").ok().map(PathBuf::from);
+        Self::resolve_with_home(home)
+    }
+
+    fn resolve_with_home(home: Option<PathBuf>) -> Result<Self> {
+        if let Some(root) = home {
             return Ok(Self {
                 data_dir: root.clone(),
                 config_dir: root.clone(),
@@ -98,11 +102,9 @@ mod tests {
     #[test]
     fn jm_home_override() {
         let dir = tempfile::tempdir().unwrap();
-        std::env::set_var("JM_HOME", dir.path());
-        let dirs = StorageDirs::resolve().unwrap();
+        let dirs = StorageDirs::resolve_with_home(Some(dir.path().to_path_buf())).unwrap();
         assert_eq!(dirs.data_dir, dir.path());
         assert_eq!(dirs.config_dir, dir.path());
         assert_eq!(dirs.cache_dir, dir.path().join("cache"));
-        std::env::remove_var("JM_HOME");
     }
 }

@@ -30,14 +30,14 @@ pub struct DetectedVersion {
 /// 3. `.sdkmanrc` file
 pub fn detect_version(start: &Path) -> Result<Option<DetectedVersion>> {
     // Check environment variable first
-    if let Ok(val) = std::env::var("JM_JAVA_VERSION") {
-        if !val.is_empty() {
-            let spec = VersionSpec::parse(&val)?;
-            return Ok(Some(DetectedVersion {
-                spec,
-                source: VersionSource::EnvVar,
-            }));
-        }
+    if let Ok(val) = std::env::var("JM_JAVA_VERSION")
+        && !val.is_empty()
+    {
+        let spec = VersionSpec::parse(&val)?;
+        return Ok(Some(DetectedVersion {
+            spec,
+            source: VersionSource::EnvVar,
+        }));
     }
 
     // Walk up the directory tree
@@ -59,13 +59,13 @@ pub fn detect_version(start: &Path) -> Result<Option<DetectedVersion>> {
 
         // Check .sdkmanrc
         let sdkmanrc = dir.join(".sdkmanrc");
-        if sdkmanrc.exists() {
-            if let Some(spec) = parse_sdkmanrc(&sdkmanrc)? {
-                return Ok(Some(DetectedVersion {
-                    spec,
-                    source: VersionSource::SdkmanRc(sdkmanrc),
-                }));
-            }
+        if sdkmanrc.exists()
+            && let Some(spec) = parse_sdkmanrc(&sdkmanrc)?
+        {
+            return Ok(Some(DetectedVersion {
+                spec,
+                source: VersionSource::SdkmanRc(sdkmanrc),
+            }));
         }
 
         // Move to parent directory
@@ -105,7 +105,7 @@ fn parse_sdkman_version(s: &str) -> Result<VersionSpec> {
         // Check if suffix looks like a distribution abbreviation (not a number)
         if !suffix.chars().next().is_none_or(|c| c.is_ascii_digit()) {
             let dist_str = map_sdkman_suffix(suffix);
-            let combined = format!("{}-{}", dist_str, version_part);
+            let combined = format!("{dist_str}-{version_part}");
             return VersionSpec::parse(&combined);
         }
     }

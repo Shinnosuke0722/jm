@@ -1,12 +1,15 @@
 [package]
 name = "jm-install"
-version = "1.0.1"
-edition = "2021"
-rust-version = "1.82"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 description = "JDK download, verification, and extraction for jm"
-authors = ["lfming0419"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/Shinnosuke0722/jm"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
 
 [dependencies]
 jm-core = { path = "../jm-core" }
@@ -18,14 +21,12 @@ sha2 = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tar = "0.4"
-flate2 = "1"
+flate2 = { version = "1", default-features = false, features = ["rust_backend"] }
 # JDK ZIP archives use standard Deflate compression. Keep the reader focused
 # on that format instead of enabling every optional ZIP codec.
-zip = { version = "2", default-features = false, features = ["deflate"] }
-# 0.18.5 raises its MSRV to Rust 1.85; 0.18.4 is the latest release that
-# supports the workspace's declared Rust 1.82 baseline.
-indicatif = "=0.18.4"
-console = "0.15"
+zip = { version = "8", default-features = false, features = ["deflate-flate2"] }
+indicatif = "0.18"
+console = "0.16"
 tempfile = "3"
 futures-util = "0.3"
 

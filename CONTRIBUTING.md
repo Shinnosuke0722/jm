@@ -6,7 +6,7 @@ Thank you for your interest in contributing to jm! This guide will help you get 
 
 ### Prerequisites
 
-- Rust 1.82+ (see [rustup.rs](https://rustup.rs/))
+- [rustup](https://rustup.rs/) (the repository pins Rust 1.97.1)
 - Git
 
 ### Building
@@ -30,7 +30,7 @@ cargo test --workspace --lib --locked
 cargo test --test integration --locked
 
 # Benchmarks
-cargo bench --bench benchmarks
+cargo bench --locked --bench benchmarks
 ```
 
 ### Linting

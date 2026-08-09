@@ -20,8 +20,8 @@
 
 - [ ] My changes are focused, and unrelated changes are excluded.
 - [ ] I ran `cargo fmt --all -- --check`.
-- [ ] I ran `cargo clippy --workspace --tests -- -D warnings`.
-- [ ] I ran `cargo test --workspace`.
+- [ ] I ran `cargo clippy --locked --workspace --all-targets -- -D warnings`.
+- [ ] I ran `cargo test --locked --workspace`.
 - [ ] I tested behavior on every relevant platform, or explained above why a platform was not tested.
 - [ ] I added or updated tests for behavior changes, or explained above why tests are not needed.
 - [ ] I updated user-facing documentation for command, configuration, or behavior changes.

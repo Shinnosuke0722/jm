@@ -44,10 +44,10 @@ pub fn run() -> Result<()> {
     let current = link::read_current_link(&dirs.current_link())?;
     match current {
         Some(target) => {
-            let name = target
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_else(|| target.display().to_string());
+            let name = target.file_name().map_or_else(
+                || target.display().to_string(),
+                |n| n.to_string_lossy().to_string(),
+            );
             println!(
                 "{} ({})",
                 style(&name).green().bold(),

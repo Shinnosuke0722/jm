@@ -21,14 +21,13 @@ pub fn run(version: &str, force: bool) -> Result<()> {
         let matches = registry.find_matching(spec.distribution.as_ref(), &spec.version);
         match matches.len() {
             0 => {
-                output::print_error(&format!("No installed JDK matches '{}'", version));
+                output::print_error(&format!("No installed JDK matches '{version}'"));
                 return Ok(());
             }
             1 => matches[0].id.clone(),
             _ => {
                 output::print_error(&format!(
-                    "Multiple JDKs match '{}'. Be more specific:",
-                    version
+                    "Multiple JDKs match '{version}'. Be more specific:"
                 ));
                 for m in matches {
                     eprintln!("  - {}", m.id);
@@ -71,11 +70,11 @@ pub fn run(version: &str, force: bool) -> Result<()> {
 
     // If this was the current default, remove the link
     let current = link::read_current_link(&dirs.current_link())?;
-    if let Some(current_target) = current {
-        if current_target == install_path {
-            link::remove_current_link(&dirs.current_link())?;
-            output::print_warning("Removed global default (was pointing to uninstalled JDK)");
-        }
+    if let Some(current_target) = current
+        && current_target == install_path
+    {
+        link::remove_current_link(&dirs.current_link())?;
+        output::print_warning("Removed global default (was pointing to uninstalled JDK)");
     }
 
     output::print_success(&format!("Uninstalled {}", style(&install_id).green()));

@@ -46,11 +46,9 @@ impl JavaVersion {
         }
 
         // Modern format: major[.minor[.patch]][+build]
-        let (version_part, build) = if let Some(idx) = s.find('+') {
-            (&s[..idx], Some(s[idx + 1..].to_string()))
-        } else {
-            (s, None)
-        };
+        let (version_part, build) = s
+            .find('+')
+            .map_or((s, None), |idx| (&s[..idx], Some(s[idx + 1..].to_string())));
 
         let parts: Vec<&str> = version_part.split('.').collect();
         let major = parts[0]
@@ -86,7 +84,7 @@ impl JavaVersion {
     fn parse_legacy(s: &str) -> Result<Self> {
         // 1.8.0_362 -> major=8, minor=0, patch=362
         let without_prefix = s.strip_prefix("1.").ok_or_else(|| {
-            JmError::InvalidVersion(format!("expected 1.x prefix in legacy format: {}", s))
+            JmError::InvalidVersion(format!("expected 1.x prefix in legacy format: {s}"))
         })?;
 
         let parts: Vec<&str> = without_prefix.split(['.', '_']).collect();
@@ -112,20 +110,20 @@ impl JavaVersion {
         if self.major != spec.major {
             return false;
         }
-        if let Some(minor) = spec.minor {
-            if self.minor != Some(minor) {
-                return false;
-            }
+        if let Some(minor) = spec.minor
+            && self.minor != Some(minor)
+        {
+            return false;
         }
-        if let Some(patch) = spec.patch {
-            if self.patch != Some(patch) {
-                return false;
-            }
+        if let Some(patch) = spec.patch
+            && self.patch != Some(patch)
+        {
+            return false;
         }
-        if let Some(ref build) = spec.build {
-            if self.build.as_ref() != Some(build) {
-                return false;
-            }
+        if let Some(ref build) = spec.build
+            && self.build.as_ref() != Some(build)
+        {
+            return false;
         }
         true
     }
@@ -176,13 +174,13 @@ impl fmt::Display for JavaVersion {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.major)?;
         if let Some(minor) = self.minor {
-            write!(f, ".{}", minor)?;
+            write!(f, ".{minor}")?;
             if let Some(patch) = self.patch {
-                write!(f, ".{}", patch)?;
+                write!(f, ".{patch}")?;
             }
         }
         if let Some(ref build) = self.build {
-            write!(f, "+{}", build)?;
+            write!(f, "+{build}")?;
         }
         Ok(())
     }

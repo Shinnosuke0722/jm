@@ -7,6 +7,17 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Changed
+
+- Pinned development, CI, release, and source builds to Rust 1.97.1 and
+  migrated the workspace to Rust edition 2024.
+- Migrated HTTP clients to Reqwest 0.13 with an explicit Rustls backend and
+  platform-native certificate verification.
+- Upgraded checksum, archive, configuration, terminal, and benchmark
+  dependencies to their latest stable releases; ZIP extraction now validates
+  archive entries before writing them and self-updates require an exact binary
+  path match.
+
 ## [1.0.1] - 2026-08-09
 
 ### Added

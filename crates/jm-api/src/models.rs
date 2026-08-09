@@ -75,8 +75,8 @@ fn deserialize_size<'de, D>(deserializer: D) -> Result<u64, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    let v = i64::deserialize(deserializer).unwrap_or(0);
-    Ok(if v > 0 { v as u64 } else { 0 })
+    let value = Option::<i64>::deserialize(deserializer)?.unwrap_or_default();
+    Ok(u64::try_from(value).unwrap_or_default())
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -127,4 +127,34 @@ pub struct DownloadInfo {
     pub checksum_sha256: Option<String>,
     pub filename: String,
     pub size: u64,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Deserialize)]
+    struct SizeFixture {
+        #[serde(default, deserialize_with = "deserialize_size")]
+        size: u64,
+    }
+
+    #[test]
+    fn deserialize_size_accepts_valid_and_unknown_values() {
+        let positive: SizeFixture = serde_json::from_str(r#"{"size": 198000000}"#).unwrap();
+        let missing: SizeFixture = serde_json::from_str("{}").unwrap();
+        let null: SizeFixture = serde_json::from_str(r#"{"size": null}"#).unwrap();
+        let negative: SizeFixture = serde_json::from_str(r#"{"size": -1}"#).unwrap();
+
+        assert_eq!(positive.size, 198_000_000);
+        assert_eq!(missing.size, 0);
+        assert_eq!(null.size, 0);
+        assert_eq!(negative.size, 0);
+    }
+
+    #[test]
+    fn deserialize_size_rejects_invalid_types_and_overflow() {
+        assert!(serde_json::from_str::<SizeFixture>(r#"{"size": "unknown"}"#).is_err());
+        assert!(serde_json::from_str::<SizeFixture>(r#"{"size": 18446744073709551615}"#).is_err());
+    }
 }

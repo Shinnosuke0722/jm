@@ -22,6 +22,5 @@ end
 # Run once on init
 __jm_auto_switch
 "#,
-        data_dir = data_dir,
     )
 }

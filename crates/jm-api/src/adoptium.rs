@@ -3,8 +3,8 @@ use crate::provider::{JdkProvider, PackageQuery};
 use jm_core::error::JmError;
 use jm_core::java_version::JavaVersion;
 use reqwest::Client;
-use serde::de::DeserializeOwned;
 use serde::Deserialize;
+use serde::de::DeserializeOwned;
 use url::Url;
 
 const ADOPTIUM_BASE_URL: &str = "https://api.adoptium.net/v3";
@@ -76,13 +76,14 @@ impl AdoptiumClient {
 
     fn with_base_url(base_url: String, proxy: Option<&str>) -> Result<Self, JmError> {
         let mut builder = Client::builder()
+            .tls_backend_rustls()
             .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30));
 
         if let Some(proxy_url) = proxy {
             builder = builder.proxy(
                 reqwest::Proxy::all(proxy_url)
-                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {}", e)))?,
+                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {e}")))?,
             );
         }
 
@@ -363,7 +364,7 @@ impl JdkProvider for AdoptiumClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
     use wiremock::matchers::{method, path, path_regex, query_param};
     use wiremock::{Mock, MockServer, ResponseTemplate};
 

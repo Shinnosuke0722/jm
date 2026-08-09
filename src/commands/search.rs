@@ -54,12 +54,12 @@ pub async fn run(
         distribution: dist_filter,
         operating_system: Some(
             os_override
-                .unwrap_or(platform.os.api_parameter())
+                .unwrap_or_else(|| platform.os.api_parameter())
                 .to_string(),
         ),
         architecture: Some(
             arch_override
-                .unwrap_or(platform.arch.api_parameter())
+                .unwrap_or_else(|| platform.arch.api_parameter())
                 .to_string(),
         ),
         archive_type: Some(platform.os.default_archive_type().to_string()),
@@ -71,7 +71,7 @@ pub async fn run(
     let packages = client.query_packages(&pkg_query).await?;
 
     if packages.is_empty() {
-        output::print_info(&format!("No packages found matching '{}'", query));
+        output::print_info(&format!("No packages found matching '{query}'"));
         return Ok(());
     }
 

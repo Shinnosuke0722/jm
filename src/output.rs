@@ -1,10 +1,10 @@
-use comfy_table::{presets, Table};
+use comfy_table::{Table, presets};
 use console::style;
 
 /// Create a styled table with the jm default settings.
 pub fn create_table(headers: &[&str]) -> Table {
     let mut table = Table::new();
-    table.load_preset(presets::UTF8_FULL_CONDENSED);
+    table.load_style(presets::UTF8_FULL_CONDENSED);
     table.set_header(headers);
     table
 }

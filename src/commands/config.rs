@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use jm_core::config::Config;
 use jm_core::storage::StorageDirs;
 
@@ -8,7 +8,7 @@ pub fn list() -> Result<()> {
     let dirs = StorageDirs::resolve()?;
     let config = Config::load(&dirs)?;
     let toml_str = toml::to_string_pretty(&config)?;
-    println!("{}", toml_str);
+    println!("{toml_str}");
     Ok(())
 }
 
@@ -32,13 +32,10 @@ pub fn get(key: &str) -> Result<()> {
         "api.proxy" => config.api.proxy.unwrap_or_else(|| "(not set)".into()),
         "ui.color" => config.ui.color,
         "ui.progress" => config.ui.progress.to_string(),
-        _ => bail!(
-            "Unknown config key: '{}'. Run 'jm config list' to see all keys.",
-            key
-        ),
+        _ => bail!("Unknown config key: '{key}'. Run 'jm config list' to see all keys."),
     };
 
-    println!("{}", value);
+    println!("{value}");
     Ok(())
 }
 
@@ -99,14 +96,11 @@ pub fn set(key: &str, value: &str) -> Result<()> {
         "ui.progress" => {
             config.ui.progress = parse_bool(value)?;
         }
-        _ => bail!(
-            "Unknown config key: '{}'. Run 'jm config list' to see all keys.",
-            key
-        ),
+        _ => bail!("Unknown config key: '{key}'. Run 'jm config list' to see all keys."),
     }
 
     config.save(&dirs)?;
-    output::print_success(&format!("Set {} = {}", key, value));
+    output::print_success(&format!("Set {key} = {value}"));
     Ok(())
 }
 

@@ -72,9 +72,9 @@ pub async fn run() -> Result<()> {
 
     println!();
     if fail_count == 0 {
-        output::print_success(&format!("All {} checks passed", pass_count));
+        output::print_success(&format!("All {pass_count} checks passed"));
     } else {
-        output::print_warning(&format!("{} passed, {} failed", pass_count, fail_count));
+        output::print_warning(&format!("{pass_count} passed, {fail_count} failed"));
     }
 
     Ok(())
@@ -85,12 +85,12 @@ fn check_platform() -> Check {
         Ok(p) => Check {
             name: "Platform detection",
             passed: true,
-            detail: format!("{}", p),
+            detail: format!("{p}"),
         },
         Err(e) => Check {
             name: "Platform detection",
             passed: false,
-            detail: format!("{}", e),
+            detail: format!("{e}"),
         },
     }
 }
@@ -115,7 +115,7 @@ fn check_storage_dirs(dirs_result: &Result<StorageDirs, jm_core::error::JmError>
         Err(e) => Check {
             name: "Storage directories",
             passed: false,
-            detail: format!("{}", e),
+            detail: format!("{e}"),
         },
     }
 }
@@ -138,7 +138,7 @@ fn check_config(dirs: &StorageDirs) -> Check {
         Err(e) => Check {
             name: "Configuration file",
             passed: false,
-            detail: format!("Parse error: {}", e),
+            detail: format!("Parse error: {e}"),
         },
     }
 }
@@ -153,7 +153,7 @@ fn check_registry(dirs: &StorageDirs) -> Check {
         Err(e) => Check {
             name: "JDK registry",
             passed: false,
-            detail: format!("Failed to load: {}", e),
+            detail: format!("Failed to load: {e}"),
         },
     }
 }
@@ -169,10 +169,10 @@ fn check_current_link(dirs: &StorageDirs) -> Check {
                 detail: if valid {
                     format!(
                         "-> {}",
-                        target
-                            .file_name()
-                            .map(|n| n.to_string_lossy().to_string())
-                            .unwrap_or_else(|| target.display().to_string())
+                        target.file_name().map_or_else(
+                            || target.display().to_string(),
+                            |n| n.to_string_lossy().to_string()
+                        )
                     )
                 } else {
                     format!(
@@ -190,21 +190,18 @@ fn check_current_link(dirs: &StorageDirs) -> Check {
         Err(e) => Check {
             name: "Global default (current link)",
             passed: false,
-            detail: format!("{}", e),
+            detail: format!("{e}"),
         },
     }
 }
 
 fn check_installed_jdks(dirs: &StorageDirs) -> Check {
-    let registry = match Registry::load(dirs) {
-        Ok(r) => r,
-        Err(_) => {
-            return Check {
-                name: "Installed JDKs integrity",
-                passed: true,
-                detail: "No registry".to_string(),
-            }
-        }
+    let Ok(registry) = Registry::load(dirs) else {
+        return Check {
+            name: "Installed JDKs integrity",
+            passed: true,
+            detail: "No registry".to_string(),
+        };
     };
 
     let mut missing = Vec::new();
@@ -242,11 +239,13 @@ fn check_installed_jdks(dirs: &StorageDirs) -> Check {
 
 async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
     let config = Config::load(dirs).unwrap_or_default();
-    let mut builder = reqwest::Client::builder().timeout(std::time::Duration::from_secs(5));
-    if let Some(ref proxy_url) = config.api.proxy {
-        if let Ok(proxy) = reqwest::Proxy::all(proxy_url) {
-            builder = builder.proxy(proxy);
-        }
+    let mut builder = reqwest::Client::builder()
+        .tls_backend_rustls()
+        .timeout(std::time::Duration::from_secs(5));
+    if let Some(ref proxy_url) = config.api.proxy
+        && let Ok(proxy) = reqwest::Proxy::all(proxy_url)
+    {
+        builder = builder.proxy(proxy);
     }
     let client = builder.build();
 
@@ -256,8 +255,8 @@ async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
             return Check {
                 name: "API connectivity (Foojay Disco)",
                 passed: false,
-                detail: format!("Failed to create HTTP client: {}", e),
-            }
+                detail: format!("Failed to create HTTP client: {e}"),
+            };
         }
     };
 
@@ -265,7 +264,8 @@ async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
         "{}/major_versions?maintained=true",
         config.api.disco_api_url
     );
-    match client.get(&url).send().await {
+    let response = client.get(&url).send().await;
+    match response {
         Ok(resp) if resp.status().is_success() => Check {
             name: "API connectivity (Foojay Disco)",
             passed: true,
@@ -279,7 +279,7 @@ async fn check_api_connectivity(dirs: &StorageDirs) -> Check {
         Err(e) => Check {
             name: "API connectivity (Foojay Disco)",
             passed: false,
-            detail: format!("{}", e),
+            detail: format!("{e}"),
         },
     }
 }

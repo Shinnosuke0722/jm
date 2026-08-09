@@ -36,7 +36,7 @@ for PowerShell setup and ARM64 notes.
 
 ### Build from source
 
-Requires Rust 1.82 or newer:
+Requires Rust 1.97.1 or newer:
 
 ```sh
 cargo install --git https://github.com/Shinnosuke0722/jm.git --locked

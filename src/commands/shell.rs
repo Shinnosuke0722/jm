@@ -6,10 +6,7 @@ use crate::output;
 
 pub fn init(shell_name: &str) -> Result<()> {
     let shell = Shell::parse(shell_name).ok_or_else(|| {
-        anyhow::anyhow!(
-            "Unknown shell: '{}'. Supported: bash, zsh, fish, powershell",
-            shell_name
-        )
+        anyhow::anyhow!("Unknown shell: '{shell_name}'. Supported: bash, zsh, fish, powershell")
     })?;
 
     let dirs = StorageDirs::resolve()?;
@@ -21,7 +18,7 @@ pub fn init(shell_name: &str) -> Result<()> {
 
 pub fn completions(shell_name: &str) -> Result<()> {
     use clap::CommandFactory;
-    use clap_complete::{generate, Shell as ClapShell};
+    use clap_complete::{Shell as ClapShell, generate};
 
     let shell = match shell_name.to_lowercase().as_str() {
         "bash" => ClapShell::Bash,
@@ -30,8 +27,7 @@ pub fn completions(shell_name: &str) -> Result<()> {
         "powershell" | "pwsh" => ClapShell::PowerShell,
         _ => {
             output::print_error(&format!(
-                "Unknown shell: '{}'. Supported: bash, zsh, fish, powershell",
-                shell_name
+                "Unknown shell: '{shell_name}'. Supported: bash, zsh, fish, powershell"
             ));
             return Ok(());
         }

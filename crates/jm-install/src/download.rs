@@ -1,3 +1,4 @@
+use futures_util::StreamExt;
 use indicatif::{ProgressBar, ProgressStyle};
 use jm_api::models::DownloadInfo;
 use jm_core::error::{JmError, Result};
@@ -116,13 +117,14 @@ pub async fn download_jdk_with_proxy(
         let _ = std::fs::remove_file(&tmp_path);
     }
 
-    let mut builder =
-        reqwest::Client::builder().user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")));
+    let mut builder = reqwest::Client::builder()
+        .tls_backend_rustls()
+        .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")));
 
     if let Some(proxy_url) = proxy {
         builder = builder.proxy(
             reqwest::Proxy::all(proxy_url)
-                .map_err(|e| JmError::DownloadFailed(format!("invalid proxy URL: {}", e)))?,
+                .map_err(|e| JmError::DownloadFailed(format!("invalid proxy URL: {e}")))?,
         );
     }
 
@@ -147,10 +149,11 @@ pub async fn download_jdk_with_proxy(
 
     let pb = ProgressBar::new(total_size);
     pb.set_style(
-        ProgressStyle::default_bar()
-            .template("{spinner:.green} [{bar:40.cyan/blue}] {bytes}/{total_bytes} ({eta})")
-            .unwrap()
-            .progress_chars("#>-"),
+        ProgressStyle::with_template(
+            "{spinner:.green} [{bar:40.cyan/blue}] {bytes}/{total_bytes} ({eta})",
+        )
+        .unwrap()
+        .progress_chars("#>-"),
     );
     pb.set_message(info.filename.clone());
 
@@ -160,8 +163,11 @@ pub async fn download_jdk_with_proxy(
         .map_err(|e| JmError::DownloadFailed(e.to_string()))?;
 
     let mut stream = response.bytes_stream();
-    use futures_util::StreamExt;
-    while let Some(chunk) = stream.next().await {
+    loop {
+        let next = stream.next().await;
+        let Some(chunk) = next else {
+            break;
+        };
         let chunk = chunk.map_err(|e| JmError::DownloadFailed(e.to_string()))?;
         file.write_all(&chunk)
             .await

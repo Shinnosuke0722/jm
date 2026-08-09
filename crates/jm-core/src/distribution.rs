@@ -69,17 +69,15 @@ impl Distribution {
     /// Validate that a distribution name is safe for use in file paths and API calls.
     /// Only allows `[a-zA-Z0-9_-]` characters.
     pub fn validate(&self) -> std::result::Result<(), crate::error::JmError> {
-        if let Self::Other(name) = self {
-            if name.is_empty()
+        if let Self::Other(name) = self
+            && (name.is_empty()
                 || !name
                     .chars()
-                    .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
-            {
-                return Err(crate::error::JmError::UnknownDistribution(format!(
-                    "invalid distribution name '{}': only [a-zA-Z0-9_-] allowed",
-                    name
-                )));
-            }
+                    .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-'))
+        {
+            return Err(crate::error::JmError::UnknownDistribution(format!(
+                "invalid distribution name '{name}': only [a-zA-Z0-9_-] allowed"
+            )));
         }
         Ok(())
     }

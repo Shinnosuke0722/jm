@@ -3,7 +3,6 @@ use crate::error::Result;
 use crate::java_version::JavaVersion;
 use crate::storage::StorageDirs;
 use chrono::{DateTime, Utc};
-use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 
@@ -81,7 +80,7 @@ impl Registry {
             std::fs::create_dir_all(parent)?;
         }
         let lock_file = std::fs::File::create(&lock_path)?;
-        lock_file.lock_exclusive()?;
+        lock_file.lock()?;
 
         let mut registry = Self::load_from(&path)?;
         let result = f(&mut registry)?;
@@ -129,10 +128,10 @@ impl Registry {
         self.installations
             .iter()
             .filter(|inst| {
-                if let Some(dist) = distribution {
-                    if &inst.distribution != dist {
-                        return false;
-                    }
+                if let Some(dist) = distribution
+                    && &inst.distribution != dist
+                {
+                    return false;
                 }
                 inst.java_version.matches(version)
             })
@@ -162,9 +161,9 @@ mod tests {
                 patch: Some(2),
                 build: None,
             },
-            full_version: format!("{}.0.2", major),
+            full_version: format!("{major}.0.2"),
             major_version: major,
-            path: PathBuf::from(format!("/tmp/jdks/{}", id)),
+            path: PathBuf::from(format!("/tmp/jdks/{id}")),
             installed_at: Utc::now(),
             is_lts: major == 21 || major == 17,
         }

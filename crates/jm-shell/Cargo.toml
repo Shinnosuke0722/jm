@@ -1,12 +1,15 @@
 [package]
 name = "jm-shell"
-version = "1.0.1"
-edition = "2021"
-rust-version = "1.82"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
 description = "Shell integration for the jm JDK and Java version manager"
-authors = ["lfming0419"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/Shinnosuke0722/jm"
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
 
 [dependencies]
 jm-core = { path = "../jm-core" }

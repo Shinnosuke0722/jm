@@ -103,9 +103,7 @@ mod tests {
             let script = shell.init_script(custom);
             assert!(
                 script.contains(custom),
-                "{:?} script should contain data_dir '{}'",
-                shell,
-                custom
+                "{shell:?} script should contain data_dir '{custom}'"
             );
         }
     }

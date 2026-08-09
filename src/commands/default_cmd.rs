@@ -1,4 +1,4 @@
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use console::style;
 use jm_core::java_version::VersionSpec;
 use jm_core::registry::Registry;
@@ -28,8 +28,7 @@ async fn set_default(dirs: &StorageDirs, version: &str, install_if_missing: bool
                 return super::install::run(version, None, true, false, false).await;
             }
             output::print_error(&format!(
-                "No installed JDK matches '{}'. Run 'jm install {}' first.",
-                version, version
+                "No installed JDK matches '{version}'. Run 'jm install {version}' first."
             ));
             return Ok(());
         }
@@ -54,11 +53,11 @@ fn show_default(dirs: &StorageDirs) -> Result<()> {
     let current = link::read_current_link(&dirs.current_link())?;
     match current {
         Some(target) => {
-            let name = target
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_else(|| target.display().to_string());
-            println!("{}", name);
+            let name = target.file_name().map_or_else(
+                || target.display().to_string(),
+                |n| n.to_string_lossy().to_string(),
+            );
+            println!("{name}");
         }
         None => {
             output::print_info("No global default set. Use 'jm default <version>' to set one.");

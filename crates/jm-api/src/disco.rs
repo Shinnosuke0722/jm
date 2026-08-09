@@ -22,13 +22,14 @@ impl DiscoClient {
         proxy: Option<&str>,
     ) -> Result<Self, JmError> {
         let mut builder = Client::builder()
+            .tls_backend_rustls()
             .user_agent(format!("jm/{}", env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30));
 
         if let Some(proxy_url) = proxy {
             builder = builder.proxy(
                 reqwest::Proxy::all(proxy_url)
-                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {}", e)))?,
+                    .map_err(|e| JmError::ApiError(format!("invalid proxy URL: {e}")))?,
             );
         }
 
@@ -70,28 +71,28 @@ impl DiscoClient {
         let mut params = Vec::new();
 
         if let Some(v) = query.major_version {
-            params.push(format!("jdk_version={}", v));
+            params.push(format!("jdk_version={v}"));
         }
         if let Some(ref d) = query.distribution {
-            params.push(format!("distribution={}", d));
+            params.push(format!("distribution={d}"));
         }
         if let Some(ref os) = query.operating_system {
-            params.push(format!("operating_system={}", os));
+            params.push(format!("operating_system={os}"));
         }
         if let Some(ref arch) = query.architecture {
-            params.push(format!("architecture={}", arch));
+            params.push(format!("architecture={arch}"));
         }
         if let Some(ref at) = query.archive_type {
-            params.push(format!("archive_type={}", at));
+            params.push(format!("archive_type={at}"));
         }
         if let Some(ref pt) = query.package_type {
-            params.push(format!("package_type={}", pt));
+            params.push(format!("package_type={pt}"));
         }
         if let Some(ref rs) = query.release_status {
-            params.push(format!("release_status={}", rs));
+            params.push(format!("release_status={rs}"));
         }
         if let Some(ref l) = query.latest {
-            params.push(format!("latest={}", l));
+            params.push(format!("latest={l}"));
         }
 
         if !params.is_empty() {
@@ -109,14 +110,14 @@ impl DiscoClient {
     /// Get detailed package info (download URL, checksum) by package id.
     pub async fn get_package_info(&self, id: &str) -> Result<DiscoPackageInfo, JmError> {
         let url = format!("{}/ids/{}", self.base_url, id);
-        let cache_key = format!("ids_{}", id);
+        let cache_key = format!("ids_{id}");
         let body = self.cached_get(&url, &cache_key, 7 * 24 * 3600).await?;
         let resp: DiscoResponse<DiscoPackageInfo> =
             serde_json::from_str(&body).map_err(|e| JmError::ApiError(e.to_string()))?;
         resp.result
             .into_iter()
             .next()
-            .ok_or_else(|| JmError::ApiError(format!("no package info found for id: {}", id)))
+            .ok_or_else(|| JmError::ApiError(format!("no package info found for id: {id}")))
     }
 
     async fn cached_get(
@@ -136,7 +137,7 @@ impl DiscoClient {
             .get(url)
             .send()
             .await
-            .map_err(|e| JmError::ApiError(format!("HTTP request failed: {}", e)))?;
+            .map_err(|e| JmError::ApiError(format!("HTTP request failed: {e}")))?;
 
         if !response.status().is_success() {
             return Err(JmError::ApiError(format!(
@@ -149,7 +150,7 @@ impl DiscoClient {
         let body = response
             .text()
             .await
-            .map_err(|e| JmError::ApiError(format!("failed to read response body: {}", e)))?;
+            .map_err(|e| JmError::ApiError(format!("failed to read response body: {e}")))?;
 
         // Cache the response
         let _ = self.cache.put(cache_key, &body);

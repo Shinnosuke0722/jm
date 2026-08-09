@@ -122,8 +122,7 @@ async fn query_packages_http_error() {
     let err = result.unwrap_err().to_string();
     assert!(
         err.contains("500"),
-        "Error should mention status code: {}",
-        err
+        "Error should mention status code: {err}"
     );
 }
 
