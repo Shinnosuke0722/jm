@@ -30,7 +30,7 @@ cargo test --workspace --lib --locked
 cargo test --test integration --locked
 
 # Benchmarks
-cargo bench --bench benchmarks
+cargo bench --locked --bench benchmarks
 ```
 
 ### Linting
