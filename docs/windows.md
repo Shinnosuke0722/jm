@@ -1,8 +1,13 @@
-# Use jm as a Java version manager on Windows
+# JDK version manager for Windows
 
-`jm` supports Windows with PowerShell integration, project-level JDK selection,
-and a user-scoped installation directory. The published Windows release artifact
-currently targets x86-64.
+`jm` is a native JDK version manager for Windows. It installs multiple Java
+Development Kits, selects a global default, and switches Java versions per
+project through PowerShell. The manager and its JDK data stay in user-scoped
+locations, so a normal setup does not require administrator privileges.
+
+The published Windows release artifact currently targets x86-64. If you are
+moving from SDKMAN, read the [SDKMAN alternative on Windows](sdkman-migration.md)
+guide after installing `jm`.
 
 ## Install with Scoop on Windows x86-64
 
@@ -148,7 +153,8 @@ organization's policy specifically requires it.
 ## Data location
 
 By default, jm follows the Windows application-data locations exposed by the
-operating system. Use `jm config path` and `jm doctor` to see resolved paths.
+operating system. Use `jm config path` to print the `config.toml` path. The
+storage-directory check in `jm doctor` reports the resolved data directory.
 
 To keep data, configuration, and cache under one explicit root, set `JM_HOME`
 before invoking jm or initializing its hook:

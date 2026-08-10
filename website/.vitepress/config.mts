@@ -102,6 +102,7 @@ export default defineConfig({
       { text: 'Get started', link: '/guide/getting-started.html' },
       { text: 'Windows', link: '/guide/windows.html' },
       { text: 'Project switching', link: '/guide/project-switching.html' },
+      { text: 'JDK distributions', link: '/guide/jdk-distributions.html' },
       { text: 'SDKMAN migration', link: '/guide/sdkman-migration.html' },
       { text: 'GitHub', link: repositoryUrl },
     ],
@@ -114,14 +115,18 @@ export default defineConfig({
         {
           text: 'Workflows',
           items: [
-            { text: 'Windows and PowerShell', link: '/guide/windows.html' },
+            { text: 'JDK version manager for Windows', link: '/guide/windows.html' },
             {
-              text: 'Project JDK switching',
+              text: 'Switch Java per project',
               link: '/guide/project-switching.html',
             },
             {
-              text: 'Migrate from SDKMAN',
+              text: 'SDKMAN alternative on Windows',
               link: '/guide/sdkman-migration.html',
+            },
+            {
+              text: 'Manage Temurin, Corretto, GraalVM',
+              link: '/guide/jdk-distributions.html',
             },
           ],
         },

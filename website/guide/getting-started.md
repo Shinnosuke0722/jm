@@ -165,4 +165,5 @@ the same Java requirement.
 
 - Follow the complete [project switching rules](project-switching.md).
 - Configure [Windows and PowerShell](windows.md).
+- Manage [Temurin, Corretto, and GraalVM](jdk-distributions.md) side by side.
 - Move an existing Java entry with the [SDKMAN migration guide](sdkman-migration.md).

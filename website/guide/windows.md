@@ -1,6 +1,6 @@
 ---
-title: Use jm as a Java version manager on Windows
-description: Install jm on Windows x86-64, enable native PowerShell JDK switching, and troubleshoot PATH or execution policy problems.
+title: JDK version manager for Windows
+description: Install and use jm as a native JDK version manager for Windows with PowerShell switching, project Java versions, and PATH troubleshooting.
 lastUpdated: false
 ---
 
