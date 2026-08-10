@@ -1,0 +1,10 @@
+temurin@21.0.10
+temurin@21.0.9
+temurin@21.0.8
+temurin@21.0.7
+temurin@21.0.6
+temurin@21.0.5
+temurin@21.0.4
+temurin@21.0.3
+temurin@21.0.2
+temurin@21.0.1

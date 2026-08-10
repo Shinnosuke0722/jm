@@ -103,6 +103,7 @@ export default defineConfig({
       { text: 'Windows', link: '/guide/windows.html' },
       { text: 'Project switching', link: '/guide/project-switching.html' },
       { text: 'JDK distributions', link: '/guide/jdk-distributions.html' },
+      { text: 'Performance', link: '/guide/performance.html' },
       { text: 'SDKMAN migration', link: '/guide/sdkman-migration.html' },
       { text: 'GitHub', link: repositoryUrl },
     ],
@@ -127,6 +128,19 @@ export default defineConfig({
             {
               text: 'Manage Temurin, Corretto, GraalVM',
               link: '/guide/jdk-distributions.html',
+            },
+          ],
+        },
+        {
+          text: 'Performance evidence',
+          items: [
+            {
+              text: 'Windows benchmark results',
+              link: '/guide/performance.html',
+            },
+            {
+              text: 'Reproduce on macOS',
+              link: '/guide/benchmarking-macos.html',
             },
           ],
         },

@@ -1,0 +1,14 @@
+┌──────────┬─────────────────┬─────────────┬─────────────────────────────────────────────────────────────────────────────────────────┐
+│ Version  ┆ Distribution    ┆ Status      ┆ Path                                                                                    │
+╞══════════╪═════════════════╪═════════════╪═════════════════════════════════════════════════════════════════════════════════════════╡
+│ 21.0.10  ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.10 │
+│ 21.0.9   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.9  │
+│ 21.0.8   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.8  │
+│ 21.0.7   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.7  │
+│ 21.0.6   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.6  │
+│ 21.0.5   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.5  │
+│ 21.0.4   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.4  │
+│ 21.0.3   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.3  │
+│ 21.0.2   ┆ Eclipse Temurin ┆ LTS         ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.2  │
+│ 21.0.1 * ┆ Eclipse Temurin ┆ LTS current ┆ /usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n10/jm/jdks/temurin-21.0.1  │
+└──────────┴─────────────────┴─────────────┴─────────────────────────────────────────────────────────────────────────────────────────┘

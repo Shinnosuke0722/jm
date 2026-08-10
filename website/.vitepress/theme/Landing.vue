@@ -105,6 +105,45 @@ async function copyInstallCommand() {
       </div>
     </section>
 
+    <section class="jm-performance" aria-labelledby="jm-performance-title">
+      <div class="jm-shell">
+        <div class="jm-performance__intro">
+          <div>
+            <p class="jm-section-label">Measured on Windows x64</p>
+            <h2 id="jm-performance-title">Fast paths, with the evidence attached.</h2>
+          </div>
+          <p>
+            In the published Windows benchmark, jm's common local commands recorded 30% to 46%
+            lower median latency than the fastest competitor in each matching scenario. Results
+            are versioned, scoped to the test machine, and explicit about where jm did not lead.
+          </p>
+        </div>
+
+        <dl class="jm-metrics" aria-label="Selected benchmark results">
+          <div>
+            <dt>27.721 <span>ms</span></dt>
+            <dd><code>jm --version</code> median</dd>
+          </div>
+          <div>
+            <dt>6.52 <span>MiB</span></dt>
+            <dd><code>jm --version</code> peak working set</dd>
+          </div>
+          <div>
+            <dt>83.17 <span>cmd/s</span></dt>
+            <dd>eight-process local-list throughput</dd>
+          </div>
+        </dl>
+
+        <div class="jm-performance__actions">
+          <a :href="withBase('/guide/performance.html')">Review the Windows evidence &rarr;</a>
+          <a :href="withBase('/guide/benchmarking-macos.html')">Reproduce it on macOS &rarr;</a>
+        </div>
+        <p class="jm-performance__note">
+          Windows 10 x64, jm 1.0.2, August 2026. This is not an all-platform or all-command claim.
+        </p>
+      </div>
+    </section>
+
     <section class="jm-paths" aria-labelledby="jm-paths-title">
       <div class="jm-shell">
         <div class="jm-section-head">

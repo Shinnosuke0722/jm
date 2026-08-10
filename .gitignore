@@ -4,6 +4,10 @@
 /website/.vitepress/cache
 /website/.vitepress/dist
 
+# Local benchmark fixtures, downloaded binaries, and SDKMAN installation.
+# Reviewed raw evidence is retained separately in /results.
+/.benchmark-work/
+
 # IDE - VSCode
 .vscode/
 *.code-workspace

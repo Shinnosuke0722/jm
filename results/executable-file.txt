@@ -1,0 +1,4 @@
+/usr/local/workspace/opensource/jm/.benchmark-work/bin/jm:    Mach-O 64-bit executable arm64
+/usr/local/workspace/opensource/jm/.benchmark-work/bin/jabba: Mach-O 64-bit executable arm64
+/usr/local/workspace/opensource/jm/.benchmark-work/bin/javm:  Mach-O 64-bit executable arm64
+/usr/local/workspace/opensource/jm/.benchmark-work/bin/mise:  Mach-O 64-bit executable arm64

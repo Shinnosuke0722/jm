@@ -1,0 +1,4 @@
+6dab7523cfc2eb34eff877df2534c09a652390db9b6c3b9105e9f7b461c4229e  /usr/local/workspace/opensource/jm/.benchmark-work/downloads/jabba-0.15.0-darwin-arm64
+fe2f9946c5f23431d617063d9ae3bc3de2670f919443ea6987ae3dc5fc5b25e1  /usr/local/workspace/opensource/jm/.benchmark-work/downloads/javm-darwin-arm64.tar.gz
+13e72b77b8ed8fcbd655c68351fcc931e5765b2ab72d8bc9710f1a79cb925356  /usr/local/workspace/opensource/jm/.benchmark-work/downloads/jm-macos-aarch64.tar.gz
+e2f25fc3a2fe82f15c33a2c7a2ec4cc0ed09eb9a1edc5cbcfe2f7f9902bfa4af  /usr/local/workspace/opensource/jm/.benchmark-work/downloads/mise-v2026.8.3-macos-arm64
