@@ -10,13 +10,24 @@
         }
     },
     "bin": "jm.exe",
+    "suggest": {
+        "Microsoft Visual C++ 2015-2022 Redistributable": "extras/vcredist2022"
+    },
     "checkver": "github",
     "autoupdate": {
         "architecture": {
             "64bit": {
                 "url": "https://github.com/Shinnosuke0722/jm/releases/download/v$version/jm-windows-x86_64.zip"
             }
+        },
+        "hash": {
+            "url": "$baseurl/sha256sums.txt"
         }
     },
-    "notes": "To enable shell integration, add to your PowerShell profile ($PROFILE):\n\n    jm shell init powershell | Invoke-Expression"
+    "notes": [
+        "Enable PowerShell integration by adding this to $PROFILE:",
+        "    jm shell init powershell | Invoke-Expression",
+        "Update this Scoop-managed installation with: scoop update jm",
+        "Do not run 'jm upgrade' for a Scoop-managed installation."
+    ]
 }

@@ -4,7 +4,31 @@
 and a user-scoped installation directory. The published Windows release artifact
 currently targets x86-64.
 
-## Install on Windows x86-64
+## Install with Scoop on Windows x86-64
+
+```powershell
+scoop bucket add shinnosuke0722 https://github.com/Shinnosuke0722/scoop-bucket
+scoop install shinnosuke0722/jm
+```
+
+The Scoop manifest suggests `extras/vcredist2022` if the Microsoft Visual C++
+2015-2022 runtime is not already installed.
+
+## Install with WinGet on Windows x86-64 after upstream acceptance
+
+The first manifest is under review in
+[`microsoft/winget-pkgs#414637`](https://github.com/microsoft/winget-pkgs/pull/414637).
+Once it appears in the WinGet community source, install it with:
+
+```powershell
+winget install --id Shinnosuke0722.jm --exact
+```
+
+Confirm availability first with `winget search --id Shinnosuke0722.jm --exact`.
+The WinGet manifest installs the required Microsoft Visual C++ runtime as a
+package dependency.
+
+## Install with the PowerShell release script
 
 Run in PowerShell:
 
@@ -15,6 +39,11 @@ irm https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.ps1 | iex
 The installer downloads `jm-windows-x86_64.zip` from the latest GitHub Release,
 attempts to verify it against the release SHA-256 list, installs `jm.exe` under
 `%USERPROFILE%\.jm\bin`, and adds that directory to the user `PATH`.
+
+The current x86-64 binary links against the Microsoft Visual C++ 2015-2022
+runtime. If a direct installation reports that `VCRUNTIME140.dll` is missing,
+install Microsoft's
+[latest supported Visual C++ Redistributable](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist).
 
 Open a new PowerShell window after installation. To check discovery:
 
@@ -28,6 +57,23 @@ download and inspect
 [`install.ps1`](https://github.com/Shinnosuke0722/jm/blob/main/install.ps1) before
 running it locally.
 
+## Upgrade jm
+
+Use the manager that owns the installation:
+
+```powershell
+# Scoop
+scoop update jm
+
+# WinGet
+winget upgrade --id Shinnosuke0722.jm --exact
+```
+
+Do not run `jm upgrade` for a Scoop- or WinGet-managed installation because it
+replaces the binary directly and bypasses the package manager's version and hash
+records. `jm upgrade` remains available for the direct PowerShell release-script
+installation.
+
 ## Build from source
 
 Install Rust 1.97.1 or newer with the MSVC toolchain, then run:
@@ -37,6 +83,11 @@ cargo install --git https://github.com/Shinnosuke0722/jm.git --locked
 ```
 
 Rust normally places the binary in `%USERPROFILE%\.cargo\bin`.
+Upgrade that source installation by re-running the command with `--force`:
+
+```powershell
+cargo install --git https://github.com/Shinnosuke0722/jm.git --locked --force
+```
 
 The CLI recognizes Windows ARM64, but the release workflow does not currently
 publish an ARM64 Windows archive. Building that target from source is best-effort
@@ -114,12 +165,28 @@ you want it applied to every PowerShell session.
 
 ### `jm` is not found after installation
 
-Open a new terminal first. Then confirm the user `PATH` contains
-`%USERPROFILE%\.jm\bin`:
+Open a new terminal first, then run `Get-Command jm`. Check the location that
+matches the installation method:
 
 ```powershell
-[Environment]::GetEnvironmentVariable("Path", "User")
+# Scoop
+scoop prefix jm
+scoop checkup
+
+# WinGet
+winget list --id Shinnosuke0722.jm --exact
+Test-Path "$env:LOCALAPPDATA\Microsoft\WinGet\Links\jm.exe"
+
+# PowerShell release installer
+Test-Path "$env:USERPROFILE\.jm\bin\jm.exe"
+
+# Cargo source installation
+Test-Path "$env:USERPROFILE\.cargo\bin\jm.exe"
 ```
+
+If the expected executable exists but is not discovered, inspect the user
+`PATH` with `[Environment]::GetEnvironmentVariable("Path", "User")` and repair
+the corresponding Scoop shim, WinGet Links, `.jm\bin`, or `.cargo\bin` entry.
 
 ### The project version is detected but Java does not change
 

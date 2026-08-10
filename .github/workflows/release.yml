@@ -182,6 +182,38 @@ jobs:
           echo "Generated Scoop manifest for v$VERSION"
           cat artifacts/jm.json
 
+      - name: Generate WinGet manifests
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          RELEASE_DATE=$(git for-each-ref \
+            --format='%(taggerdate:short)' "refs/tags/$GITHUB_REF_NAME")
+          if [ -z "$RELEASE_DATE" ]; then
+            RELEASE_DATE=$(git log -1 --format=%cs "$GITHUB_REF_NAME")
+          fi
+          SHA_WIN=$(grep 'jm-windows-x86_64.zip' artifacts/sha256sums.txt | awk '{print $1}')
+          for template in packaging/winget/*.yaml; do
+            output="artifacts/$(basename "$template")"
+            sed -e "s/VERSION_PLACEHOLDER/$VERSION/g" \
+                -e "s/RELEASE_DATE_PLACEHOLDER/$RELEASE_DATE/g" \
+                -e "s/SHA256_WINDOWS_PLACEHOLDER/$SHA_WIN/g" \
+                "$template" > "$output"
+          done
+          echo "Generated WinGet manifests for v$VERSION"
+          cat artifacts/Shinnosuke0722.jm*.yaml
+
+      - name: Validate package-manager metadata
+        run: |
+          if grep -ERn \
+            '(VERSION|SHA256_[A-Z0-9_]+|RELEASE_DATE)_PLACEHOLDER' \
+            artifacts/jm.rb artifacts/jm.json artifacts/Shinnosuke0722.jm*.yaml; then
+            echo "Generated package-manager metadata contains an unresolved placeholder" >&2
+            exit 1
+          fi
+          jq empty artifacts/jm.json
+          ruby -c artifacts/jm.rb
+          ruby -e 'require "yaml"; ARGV.each { |path| YAML.parse_file(path) }' \
+            artifacts/Shinnosuke0722.jm*.yaml
+
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
@@ -192,3 +224,4 @@ jobs:
             artifacts/sha256sums.txt
             artifacts/jm.rb
             artifacts/jm.json
+            artifacts/Shinnosuke0722.jm*.yaml

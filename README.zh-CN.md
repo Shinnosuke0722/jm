@@ -12,7 +12,40 @@ Java，并通过 `.java-version` 或 `.sdkmanrc` 中的 `java=` 条目为项目�
 
 ## 安装
 
-### Linux 和 macOS
+### Homebrew（macOS 和 Linux）
+
+```sh
+brew install Shinnosuke0722/tap/jm
+```
+
+通过 Homebrew 安装后，请使用 `brew upgrade Shinnosuke0722/tap/jm` 升级，
+不要运行 `jm upgrade`。
+
+### Scoop（Windows x86-64）
+
+```powershell
+scoop bucket add shinnosuke0722 https://github.com/Shinnosuke0722/scoop-bucket
+scoop install shinnosuke0722/jm
+```
+
+通过 Scoop 安装后，请使用 `scoop update jm` 升级，不要运行 `jm upgrade`。
+如果系统尚未安装 Microsoft Visual C++ 2015-2022 运行库，清单会给出安装提示。
+
+### WinGet（Windows x86-64；上游审核中）
+
+首个 WinGet 清单已提交到
+[`microsoft/winget-pkgs#414637`](https://github.com/microsoft/winget-pkgs/pull/414637)。
+Microsoft 将它发布到社区源后，可以运行：
+
+```powershell
+winget install --id Shinnosuke0722.jm --exact
+```
+
+在 `winget search --id Shinnosuke0722.jm --exact` 能查到该包之前，请使用
+Scoop 或下方 PowerShell Release 安装脚本。WinGet 管理的安装应使用
+`winget upgrade --id Shinnosuke0722.jm --exact` 升级。
+
+### Linux 和 macOS Release 安装脚本
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh | sh
@@ -22,7 +55,7 @@ curl -fsSL https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.sh |
 `~/.jm/bin`。如果你的安全规范不允许直接执行远程脚本，请先查看
 [`install.sh`](install.sh)，再下载到本地执行。
 
-### Windows（PowerShell）
+### Windows PowerShell Release 安装脚本
 
 ```powershell
 irm https://raw.githubusercontent.com/Shinnosuke0722/jm/main/install.ps1 | iex
@@ -38,6 +71,12 @@ Windows 安装脚本会把 `%USERPROFILE%\.jm\bin` 加入用户 `PATH`。安装�
 
 ```sh
 cargo install --git https://github.com/Shinnosuke0722/jm.git --locked
+```
+
+通过 Cargo 从源码安装后，请加上 `--force` 重新执行该命令来升级：
+
+```sh
+cargo install --git https://github.com/Shinnosuke0722/jm.git --locked --force
 ```
 
 当发布页同时提供 SHA-256 清单且本机校验工具可用时，Release 安装脚本会尝试
@@ -176,7 +215,7 @@ CLI 能识别 x86-64 或 ARM64 上的 Linux、macOS 和 Windows。Windows ARM64
 | `jm shell completions <shell>` | 生成命令补全脚本 |
 | `jm config list\|get\|set\|path` | 查看或修改配置 |
 | `jm doctor` | 运行本地配置与网络连接诊断 |
-| `jm upgrade` | 从最新 GitHub Release 升级 `jm` |
+| `jm upgrade` | 从最新 GitHub Release 升级 Release 脚本安装的 `jm` |
 
 使用 `jm <command> --help` 查看完整参数。
 
@@ -197,8 +236,9 @@ jm doctor
   下载来源之后才应使用。
 - 项目要求的版本尚未安装时，`jm current` 会给出提示，Shell Hook 暂时继续使用
   全局默认 JDK。
-- `packaging/` 中的 Homebrew 和 Scoop 文件只是发布模板；本仓库尚未宣传任何
-  官方 Tap 或 Bucket。
+- 由 Homebrew、Scoop 或 WinGet 管理的安装必须使用对应包管理器升级。
+  源码安装应使用 `cargo install --force` 升级。`jm upgrade` 会直接替换可执行
+  文件，只适用于 Release 脚本安装的版本。
 - `jm upgrade` 依赖 GitHub Release 中与当前操作系统和架构匹配的文件。
 
 ## 文档
@@ -206,6 +246,7 @@ jm doctor
 - [Windows 与 PowerShell](docs/windows.md)
 - [项目级 JDK 切换](docs/project-switching.md)
 - [SDKMAN Java 迁移](docs/sdkman-migration.md)
+- [包管理器分发维护](packaging/README.md)
 - [贡献指南](CONTRIBUTING.md)
 - [安全策略](SECURITY.md)
 - [更新日志](CHANGELOG.md)
