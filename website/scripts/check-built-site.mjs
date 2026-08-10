@@ -9,6 +9,8 @@ const pages = [
   ['guide/windows.html', `${siteUrl}guide/windows.html`],
   ['guide/project-switching.html', `${siteUrl}guide/project-switching.html`],
   ['guide/jdk-distributions.html', `${siteUrl}guide/jdk-distributions.html`],
+  ['guide/performance.html', `${siteUrl}guide/performance.html`],
+  ['guide/benchmarking-macos.html', `${siteUrl}guide/benchmarking-macos.html`],
   ['guide/sdkman-migration.html', `${siteUrl}guide/sdkman-migration.html`],
 ]
 
@@ -39,6 +41,10 @@ requireText(home, '<h1 id="jm-hero-title">Java Manager.', 'index.html')
 requireText(home, '<script type="application/ld+json">', 'index.html')
 requireText(home, '"@type":"SoftwareApplication"', 'index.html')
 requireText(home, 'src="/jm/jm-mark.svg"', 'index.html')
+requireText(home, 'Fast paths, with the evidence attached.', 'index.html')
+requireText(home, '27.721', 'index.html')
+requireText(home, 'href="/jm/guide/performance.html"', 'index.html')
+requireText(home, 'href="/jm/guide/benchmarking-macos.html"', 'index.html')
 for (const [, canonical] of pages.slice(1)) {
   requireText(home, `href="${new URL(canonical).pathname}"`, 'index.html')
 }
@@ -51,6 +57,8 @@ const intentPages = [
   ['guide/project-switching.html', 'Switch Java versions per project with jm'],
   ['guide/sdkman-migration.html', 'SDKMAN alternative on Windows for Java projects'],
   ['guide/jdk-distributions.html', 'Manage Temurin, Corretto, and GraalVM with jm'],
+  ['guide/performance.html', 'jm performance: Windows benchmark evidence'],
+  ['guide/benchmarking-macos.html', 'Run the competitive benchmark on macOS'],
 ]
 
 for (const [file, intent] of intentPages) {
@@ -71,6 +79,8 @@ for (const file of [
   'guide/windows.html',
   'guide/project-switching.html',
   'guide/jdk-distributions.html',
+  'guide/performance.html',
+  'guide/benchmarking-macos.html',
   'guide/sdkman-migration.html',
 ]) {
   const html = await readFile(resolve(output, file), 'utf8')

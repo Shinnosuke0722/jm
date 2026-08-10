@@ -167,3 +167,5 @@ the same Java requirement.
 - Configure [Windows and PowerShell](windows.md).
 - Manage [Temurin, Corretto, and GraalVM](jdk-distributions.md) side by side.
 - Move an existing Java entry with the [SDKMAN migration guide](sdkman-migration.md).
+- Review the measured [performance evidence](performance.md) and its limits.
+- Reproduce the comparison with the [macOS benchmark protocol](benchmarking-macos.md).
