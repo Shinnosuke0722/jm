@@ -262,6 +262,7 @@ Notes:
 
 - [Windows and PowerShell](docs/windows.md)
 - [Project JDK switching](docs/project-switching.md)
+- [Manage Temurin, Corretto, and GraalVM](docs/jdk-distributions.md)
 - [SDKMAN Java migration](docs/sdkman-migration.md)
 - [Package-manager distribution](packaging/README.md)
 - [Contributing](CONTRIBUTING.md)

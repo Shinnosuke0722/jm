@@ -8,6 +8,7 @@ const pages = [
   ['guide/getting-started.html', `${siteUrl}guide/getting-started.html`],
   ['guide/windows.html', `${siteUrl}guide/windows.html`],
   ['guide/project-switching.html', `${siteUrl}guide/project-switching.html`],
+  ['guide/jdk-distributions.html', `${siteUrl}guide/jdk-distributions.html`],
   ['guide/sdkman-migration.html', `${siteUrl}guide/sdkman-migration.html`],
 ]
 
@@ -45,6 +46,20 @@ for (const [, canonical] of pages.slice(1)) {
 const projectSwitching = await readFile(resolve(output, 'guide/project-switching.html'), 'utf8')
 requireText(projectSwitching, 'id="enable-the-shell-hook"', 'guide/project-switching.html')
 
+const intentPages = [
+  ['guide/windows.html', 'JDK version manager for Windows'],
+  ['guide/project-switching.html', 'Switch Java versions per project with jm'],
+  ['guide/sdkman-migration.html', 'SDKMAN alternative on Windows for Java projects'],
+  ['guide/jdk-distributions.html', 'Manage Temurin, Corretto, and GraalVM with jm'],
+]
+
+for (const [file, intent] of intentPages) {
+  const html = await readFile(resolve(output, file), 'utf8')
+  requireText(html, `<h1 id="${intent.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-').replace(/-$/, '')}"`, file)
+  requireText(html, `<title>${intent} — jm docs</title>`, file)
+  forbidText(html, '<meta name="robots" content="noindex', file)
+}
+
 const sdkmanMigration = await readFile(resolve(output, 'guide/sdkman-migration.html'), 'utf8')
 requireText(
   sdkmanMigration,
@@ -55,6 +70,7 @@ requireText(
 for (const file of [
   'guide/windows.html',
   'guide/project-switching.html',
+  'guide/jdk-distributions.html',
   'guide/sdkman-migration.html',
 ]) {
   const html = await readFile(resolve(output, file), 'utf8')

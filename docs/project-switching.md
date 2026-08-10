@@ -1,8 +1,9 @@
-# Project JDK switching with jm
+# Switch Java versions per project with jm
 
-`jm` can select an installed JDK as you move between Java projects. The selected
-home is exposed through `JAVA_HOME`, and its `bin` directory is placed on the
-current shell's `PATH`.
+`jm` switches Java versions per project as you move between directories. A
+project can pin an installed JDK in `.java-version` or reuse the Java entry in
+`.sdkmanrc`; the selected home is exposed through `JAVA_HOME`, and its `bin`
+directory is placed on the current shell's `PATH`.
 
 ## 1. Enable the shell hook {#enable-the-shell-hook}
 

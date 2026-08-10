@@ -245,6 +245,7 @@ jm doctor
 
 - [Windows 与 PowerShell](docs/windows.md)
 - [项目级 JDK 切换](docs/project-switching.md)
+- [管理 Temurin、Corretto 与 GraalVM](docs/jdk-distributions.md)
 - [SDKMAN Java 迁移](docs/sdkman-migration.md)
 - [包管理器分发维护](packaging/README.md)
 - [贡献指南](CONTRIBUTING.md)

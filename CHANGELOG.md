@@ -16,6 +16,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
+- Restructured the documentation site around indexable Windows JDK management,
+  per-project Java switching, SDKMAN migration, and JDK distribution guides.
 - Documented package-manager installation and upgrade commands, the Windows
   Visual C++ runtime dependency, and why package-managed installations must not
   use the binary self-updater.

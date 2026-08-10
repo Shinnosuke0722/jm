@@ -1,12 +1,31 @@
-# Migrate a Java project from SDKMAN to jm
+# SDKMAN alternative on Windows for Java projects
 
-`jm` offers a narrow interoperability path for Java projects that already have a
-`.sdkmanrc`: it reads the first non-comment `java=<version>` entry while walking
-up from the current directory.
+If you need an SDKMAN alternative on Windows for installing and switching Java,
+`jm` provides a native PowerShell workflow. It can install JDKs, set a global
+default, switch Java per project, and read an existing `.sdkmanrc` Java entry.
 
-This is not full SDKMAN compatibility. `jm` does not install or switch Kotlin,
-Maven, Gradle, or other SDKMAN candidates, does not run `sdk env`, and does not
-consume SDKMAN's local installation catalog.
+This is a Java/JDK alternative, not a full SDKMAN replacement. `jm` does not
+install or switch Kotlin, Maven, Gradle, or other SDKMAN candidates, does not run
+`sdk env`, and does not consume SDKMAN's local installation catalog.
+
+## Install the Windows-native manager
+
+On Windows x86-64, install with Scoop:
+
+```powershell
+scoop bucket add shinnosuke0722 https://github.com/Shinnosuke0722/scoop-bucket
+scoop install shinnosuke0722/jm
+```
+
+Then initialize the current PowerShell session and add the same command to
+`$PROFILE` for future sessions:
+
+```powershell
+jm shell init powershell | Invoke-Expression
+```
+
+See the [Windows JDK version manager guide](windows.md) for the PowerShell
+release installer, PATH troubleshooting, upgrades, and Windows ARM64 notes.
 
 ## Supported Java entry
 
@@ -37,8 +56,11 @@ Recognized SDKMAN vendor suffix mappings include:
 | `ms` | `microsoft` |
 | `mandrel` | `mandrel` |
 
-Unknown suffixes are passed to the Foojay lookup as distribution names after
-normal validation. Availability depends on the upstream catalog and platform.
+Unknown suffixes are retained as candidate distribution names after normal
+validation. Project detection still checks only installed JDKs; it does not
+query or install packages. To attempt an installation, run `jm install
+DIST-VERSION` explicitly—for example, `jm install custom-21`. Availability
+depends on the upstream catalog and platform.
 
 ## Safe migration workflow
 

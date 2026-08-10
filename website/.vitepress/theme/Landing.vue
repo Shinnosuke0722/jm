@@ -122,7 +122,7 @@ async function copyInstallCommand() {
           <a class="jm-doc-link jm-doc-link--wide" :href="withBase('/guide/windows.html')">
             <span class="jm-doc-link__index">WIN</span>
             <div>
-              <h3>Use jm on Windows</h3>
+              <h3>JDK version manager for Windows</h3>
               <p>Install the x86-64 release, enable PowerShell, and troubleshoot PATH.</p>
             </div>
             <b aria-hidden="true">↗</b>
@@ -130,7 +130,7 @@ async function copyInstallCommand() {
           <a class="jm-doc-link" :href="withBase('/guide/project-switching.html')">
             <span class="jm-doc-link__index">PATH</span>
             <div>
-              <h3>Switch by project</h3>
+              <h3>Switch Java versions per project</h3>
               <p>Resolve `.java-version`, `.sdkmanrc`, and the global default.</p>
             </div>
             <b aria-hidden="true">↗</b>
@@ -138,7 +138,7 @@ async function copyInstallCommand() {
           <a class="jm-doc-link" :href="withBase('/guide/sdkman-migration.html')">
             <span class="jm-doc-link__index">MOVE</span>
             <div>
-              <h3>Migrate from SDKMAN</h3>
+              <h3>SDKMAN alternative on Windows</h3>
               <p>Carry the Java entry forward without claiming full SDKMAN compatibility.</p>
             </div>
             <b aria-hidden="true">↗</b>
@@ -156,6 +156,9 @@ async function copyInstallCommand() {
             Search the provider catalog by distribution, Java version, operating system, and
             architecture.
           </p>
+          <a :href="withBase('/guide/jdk-distributions.html')">
+            Manage Temurin, Corretto, and GraalVM →
+          </a>
         </div>
         <ul>
           <li><span>01</span> Temurin</li>
