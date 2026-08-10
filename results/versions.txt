@@ -1,0 +1,9 @@
+jm 1.0.2
+0.15.0
+0.13.2 (commit f389c756dac1bd93088b74892989ca8f26b645ce, built at 2026-08-08T22:58:22Z)
+2026.8.3 macos-arm64 (2026-08-07)
+
+SDKMAN!
+script: 5.23.0
+native: 0.7.34 (macos aarch64)
+

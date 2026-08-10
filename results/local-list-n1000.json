@@ -1,0 +1,188 @@
+{
+  "results": [
+    {
+      "command": "env JM_HOME=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/jm /usr/local/workspace/opensource/jm/.benchmark-work/bin/jm list --no-color",
+      "mean": 0.011480225,
+      "stddev": 0.0002460910843998847,
+      "median": 0.011441208500000001,
+      "user": 0.0080802,
+      "system": 0.0023789,
+      "min": 0.011153208000000001,
+      "max": 0.011878583000000002,
+      "times": [
+        0.011878583000000002,
+        0.011153208000000001,
+        0.01154175,
+        0.011571083000000001,
+        0.011338208,
+        0.011856917000000002,
+        0.011446625,
+        0.011435792,
+        0.01141225,
+        0.011167834000000001
+      ],
+      "memory_usage_byte": [
+        10305536,
+        10305536,
+        10305536,
+        10305536,
+        10305536,
+        10305536,
+        10305536,
+        10305536,
+        10305536,
+        10305536
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "command": "env JABBA_HOME=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/jabba /usr/local/workspace/opensource/jm/.benchmark-work/bin/jabba ls",
+      "mean": 0.046698224999999996,
+      "stddev": 0.0011298954635917038,
+      "median": 0.046654833500000006,
+      "user": 0.0262909,
+      "system": 0.016939199999999998,
+      "min": 0.04531475,
+      "max": 0.048344125,
+      "times": [
+        0.046400250000000004,
+        0.046909417,
+        0.047216583000000006,
+        0.04531475,
+        0.048344125,
+        0.0477565,
+        0.048074167,
+        0.0460095,
+        0.04550875,
+        0.045448208000000004
+      ],
+      "memory_usage_byte": [
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "command": "env JAVM_HOME=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/javm /usr/local/workspace/opensource/jm/.benchmark-work/bin/javm ls",
+      "mean": 0.007782266700000001,
+      "stddev": 0.00042728223423557486,
+      "median": 0.007775250000000001,
+      "user": 0.0040406,
+      "system": 0.0025605,
+      "min": 0.0072840000000000005,
+      "max": 0.008557167000000001,
+      "times": [
+        0.0075975,
+        0.0073021660000000006,
+        0.008557167000000001,
+        0.0072840000000000005,
+        0.008087500000000001,
+        0.007328959,
+        0.007743667,
+        0.007860500000000001,
+        0.007806833000000001,
+        0.008254375000000001
+      ],
+      "memory_usage_byte": [
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368,
+        16826368
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "command": "env MISE_DATA_DIR=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/mise-data MISE_CONFIG_DIR=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/mise-config MISE_CACHE_DIR=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/mise-cache MISE_STATE_DIR=/usr/local/workspace/opensource/jm/.benchmark-work/fixtures/n1000/mise-state MISE_NO_AUTO_INSTALL=1 /usr/local/workspace/opensource/jm/.benchmark-work/bin/mise ls --installed java --no-header",
+      "mean": 0.041820125,
+      "stddev": 0.0007628587632153442,
+      "median": 0.0416308545,
+      "user": 0.014641899999999996,
+      "system": 0.025694699999999994,
+      "min": 0.041120208000000005,
+      "max": 0.043437042,
+      "times": [
+        0.042380541,
+        0.041147666,
+        0.041397125,
+        0.041120208000000005,
+        0.043437042,
+        0.041126833,
+        0.041348292,
+        0.041864584,
+        0.041865459,
+        0.0425135
+      ],
+      "memory_usage_byte": [
+        22003712,
+        22003712,
+        22003712,
+        22036480,
+        22036480,
+        22036480,
+        22036480,
+        22036480,
+        22036480,
+        22036480
+      ],
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

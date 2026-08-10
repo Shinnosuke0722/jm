@@ -20,6 +20,11 @@ not mixed with release differences:
 | javm | 0.13.2 |
 | mise | 2026.8.3 |
 
+Also record SDKMAN's `sdk version` when it is included as a shell-client
+observation. SDKMAN is not a pinned native executable: its official client is
+loaded into Bash. Keep it in a separate column and do not use it to rank the
+native process-startup results above.
+
 Run all four as native binaries for the same architecture. Do not compare an
 Apple Silicon binary with an x86-64 binary running under Rosetta.
 
@@ -135,6 +140,7 @@ export MISE_CONFIG_DIR="$BENCH_ROOT/fixtures/n100/mise-config"
 export MISE_CACHE_DIR="$BENCH_ROOT/fixtures/n100/mise-cache"
 export MISE_STATE_DIR="$BENCH_ROOT/fixtures/n100/mise-state"
 export MISE_NO_AUTO_INSTALL=1
+export SDKMAN_DIR="$BENCH_ROOT/fixtures/n100/sdkman"
 ```
 
 Generate equivalent fixture counts of 0, 10, 100, and 1,000. Each fake JDK must
@@ -143,6 +149,11 @@ with `JAVA_VERSION`, `JAVA_VENDOR`, and `OS_ARCH`. jm's `registry.json` must
 contain the same number of registered installations. mise installations live
 under `installs/java/VERSION`, and jabba/javm installations use
 `jdk/temurin@VERSION`.
+
+For SDKMAN, copy a complete, isolated SDKMAN installation into each fixture and
+place fake JDKs under `candidates/java/VERSION-tem`; point its `current` link at
+one such candidate. Do not source a user's `~/.sdkman` or profile files. SDKMAN
+requires Bash 4 or later, so record the Bash path and version used by the run.
 
 The following generator creates that layout plus the project-depth fixtures:
 
@@ -336,6 +347,14 @@ Use the nearest equivalent command for each tool and document differences:
 | Project resolve | `env --detect --shell --no-color` | `--fd3 /dev/null use` at depth 0 only | same | `hook-env --force --quiet --shell zsh` |
 | Shell init | `shell init zsh` | exclude if it writes a profile | `init zsh` | `activate zsh` |
 
+SDKMAN is an additional, shell-client observation: run it through a clean Bash
+that sources only the isolated `SDKMAN_DIR/bin/sdkman-init.sh`, then use `sdk
+version`, `sdk current java`, and `sdk home java VERSION-tem` where configured.
+Its startup includes Bash and SDKMAN initialization, and it has no local-list
+command with the same semantics as the native tools, so exclude it from native
+startup and local-list rankings. `sdk list java` is a remote catalogue query and
+may be retained only as an observational network sample.
+
 Create project trees at depths 0, 5, 20, 50, and 100. Put `.java-version`,
 `.jabbarc`, and `mise.toml` at the root. Only rank tools at depths they actually
 traverse; a tool that reads only the current directory has not completed the
@@ -431,6 +450,8 @@ Before comparing results:
 - thermal pressure must remain clear;
 - tool versions, executable hashes, machine metadata, stdout sizes, raw timing
   JSON, and raw memory logs must be present; and
+- the SDKMAN script/native version, Bash version, and isolated SDKMAN_DIR must
+  be present if SDKMAN observations are included; and
 - the benchmark directory must not contain credentials, ordinary user config,
   or unrelated shell profiles.
 

@@ -1,0 +1,156 @@
+{
+  "warmups": 2,
+  "runs": 12,
+  "tools": {
+    "jm": [
+      {
+        "seconds": 0.016095499973744154,
+        "throughput_commands_per_second": 497.03333310863474
+      },
+      {
+        "seconds": 0.018719749990850687,
+        "throughput_commands_per_second": 427.356134772634
+      },
+      {
+        "seconds": 0.01577195804566145,
+        "throughput_commands_per_second": 507.229348241935
+      },
+      {
+        "seconds": 0.01767279184423387,
+        "throughput_commands_per_second": 452.67324317013174
+      },
+      {
+        "seconds": 0.015614874893799424,
+        "throughput_commands_per_second": 512.3319946147474
+      },
+      {
+        "seconds": 0.01553795812651515,
+        "throughput_commands_per_second": 514.8681657436181
+      },
+      {
+        "seconds": 0.016636708984151483,
+        "throughput_commands_per_second": 480.8643348646049
+      },
+      {
+        "seconds": 0.016476749908179045,
+        "throughput_commands_per_second": 485.53264718965033
+      },
+      {
+        "seconds": 0.016884166980162263,
+        "throughput_commands_per_second": 473.8166833696593
+      },
+      {
+        "seconds": 0.01601908402517438,
+        "throughput_commands_per_second": 499.40433469403155
+      },
+      {
+        "seconds": 0.015329000074416399,
+        "throughput_commands_per_second": 521.8866175982175
+      },
+      {
+        "seconds": 0.016352709149941802,
+        "throughput_commands_per_second": 489.2155744131529
+      }
+    ],
+    "jabba": [
+      {
+        "seconds": 0.0784221668727696,
+        "throughput_commands_per_second": 102.01197338730802
+      },
+      {
+        "seconds": 0.0791921669151634,
+        "throughput_commands_per_second": 101.02009215848584
+      },
+      {
+        "seconds": 0.07854779087938368,
+        "throughput_commands_per_second": 101.84882235942995
+      },
+      {
+        "seconds": 0.0843972081784159,
+        "throughput_commands_per_second": 94.78986536009558
+      },
+      {
+        "seconds": 0.08153916709125042,
+        "throughput_commands_per_second": 98.11235858035202
+      },
+      {
+        "seconds": 0.08629945782013237,
+        "throughput_commands_per_second": 92.70046651595207
+      },
+      {
+        "seconds": 0.082332625053823,
+        "throughput_commands_per_second": 97.1668277887434
+      },
+      {
+        "seconds": 0.08035050006583333,
+        "throughput_commands_per_second": 99.56378608030298
+      },
+      {
+        "seconds": 0.08506825007498264,
+        "throughput_commands_per_second": 94.04213667200715
+      },
+      {
+        "seconds": 0.0821224998217076,
+        "throughput_commands_per_second": 97.41544664821983
+      },
+      {
+        "seconds": 0.08246783306822181,
+        "throughput_commands_per_second": 97.00752041565069
+      },
+      {
+        "seconds": 0.07783124991692603,
+        "throughput_commands_per_second": 102.7864772638096
+      }
+    ],
+    "mise": [
+      {
+        "seconds": 0.02739595784805715,
+        "throughput_commands_per_second": 292.01388191533295
+      },
+      {
+        "seconds": 0.028157958993688226,
+        "throughput_commands_per_second": 284.11150118491355
+      },
+      {
+        "seconds": 0.026223708875477314,
+        "throughput_commands_per_second": 305.06745014550836
+      },
+      {
+        "seconds": 0.027401958126574755,
+        "throughput_commands_per_second": 291.94993887102913
+      },
+      {
+        "seconds": 0.026480040978640318,
+        "throughput_commands_per_second": 302.11433609385523
+      },
+      {
+        "seconds": 0.029187459032982588,
+        "throughput_commands_per_second": 274.090320468109
+      },
+      {
+        "seconds": 0.03078870801255107,
+        "throughput_commands_per_second": 259.83552141060244
+      },
+      {
+        "seconds": 0.03045687498524785,
+        "throughput_commands_per_second": 262.66647526625417
+      },
+      {
+        "seconds": 0.02743449993431568,
+        "throughput_commands_per_second": 291.6036384535452
+      },
+      {
+        "seconds": 0.027474666014313698,
+        "throughput_commands_per_second": 291.17733390579434
+      },
+      {
+        "seconds": 0.02813920797780156,
+        "throughput_commands_per_second": 284.30082347417294
+      },
+      {
+        "seconds": 0.029106208123266697,
+        "throughput_commands_per_second": 274.85545235296456
+      }
+    ]
+  }
+}
